@@ -1,10 +1,10 @@
-# Vezzi
+# Vezz
 
-![Vezzi Logo](https://via.placeholder.com/150)
+![Vezz Logo](https://via.placeholder.com/150)
 
 ## Sobre o Projeto
 
-A **Vezzi** é uma plataforma online para aluguel de roupas de ocasiões especiais, como casamentos e formaturas. A ideia é conectar pessoas que precisam de roupas sofisticadas para eventos importantes com lojistas que oferecem esses trajes para aluguel.
+A **Vezz** é uma plataforma online para aluguel de roupas de ocasiões especiais, como casamentos e formaturas. A ideia é conectar pessoas que precisam de roupas sofisticadas para eventos importantes com lojistas que oferecem esses trajes para aluguel.
 
 ### Objetivo
 Facilitar o acesso a roupas elegantes e de alta qualidade sem a necessidade de compra, promovendo a economia compartilhada e a sustentabilidade na moda.
@@ -31,6 +31,6 @@ Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICEN
 
 ## Contato
 
-📧 **Email:** contato@vezzi.com.br  
-🌐 **Site:** [www.vezzi.com.br](https://www.vezzi.com.br)  
+📧 **Email:** contato@vezz.com.br  
+🌐 **Site:** [www.vezz.com.br](https://www.vezz.com.br)  
 📷 **Instagram:** [@vezzi.oficial](https://instagram.com/vezzi.oficial)
