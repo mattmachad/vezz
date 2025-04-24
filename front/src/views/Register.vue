@@ -1,6 +1,8 @@
 <template>
     <div class="login-container">
-      <div class="login-left" />
+      <div class="login-left">
+        <router-link to="/"><img class="icon arrow" alt="Buscar" src="@/assets/chevron_backward.svg" /></router-link>
+      </div>
       <div class="login-right">
         <div class="form-box">
           <h1 class="logo">VEZZ</h1>
@@ -102,5 +104,21 @@
     font-size: 13px;
     text-align: center;
   }
+
+  .login-link a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    
+  }
+
+  .arrow {
+    margin-left: 3vh;
+    margin-top: 3vh;
+    width: 32px;
+    height: 32px;
+
+  }
+
   </style>
   

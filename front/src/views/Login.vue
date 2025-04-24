@@ -1,6 +1,8 @@
 <template>
     <div class="login-container">
-      <div class="login-left" />
+      <div class="login-left">
+        <router-link to="/"><img class="icon arrow" alt="Buscar" src="@/assets/chevron_backward.svg" /></router-link>
+      </div>
       <div class="login-right">
         <div class="form-box">
           <h1 class="logo">VEZZ</h1>
@@ -41,7 +43,7 @@
   
   .login-left {
     flex: 1;
-    background-image: url('@/assets/login_and_register.png'); /* substitua pela sua imagem */
+    background-image: url('@/assets/login_and_register.png');
     background-size: cover;
     background-position: center;
   }
@@ -112,5 +114,15 @@
     color: black;
     font-weight: bold;
   }
+
+  .arrow {
+    margin-left: 3vh;
+    margin-top: 3vh;
+    width: 32px;
+    height: 32px;
+
+  }
+
+
   </style>
   

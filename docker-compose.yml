@@ -4,7 +4,12 @@ services:
   frontend:
     build: ./front
     ports:
-      - "5173:3000"
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - ./front:/app
+      - /app/node_modules
+    command: yarn dev --host
     depends_on:
       - backend
 

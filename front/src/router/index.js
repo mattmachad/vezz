@@ -17,12 +17,8 @@ const routes = [
     path: '/',
     name: 'Home',
     component: () => import('@/components/HeroSection.vue') // ou crie um Home.vue se quiser
-  }, 
-  {
-    path: '/',
-    redirect: '/login'
-  }
-  
+  },
+
 ]
 
 const router = createRouter({

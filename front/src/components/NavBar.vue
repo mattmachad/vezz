@@ -10,10 +10,10 @@
       </nav>
 
       <div class="icons">
-        <img class="icon" alt="Buscar" src="@/assets/search.svg" />
-        <img class="icon" alt="Favoritos" src="@/assets/favorite.svg" />
-        <img class="icon" alt="Conta" src="@/assets/account_circle.svg" />
-        <img class="icon" alt="Carrinho" src="@/assets/shopping_bag.svg" />
+        <router-link to="/"><img class="icon" alt="Buscar" src="@/assets/search.svg" /></router-link>
+        <router-link to="/"><img class="icon" alt="Favoritos" src="@/assets/favorite.svg" /></router-link>
+        <router-link to="/login"><img class="icon" alt="Conta" src="@/assets/account_circle.svg" /></router-link>
+        <router-link to="/"><img class="icon" alt="Carrinho" src="@/assets/shopping_bag.svg" /></router-link>
       </div>
     </div>
   </header>
