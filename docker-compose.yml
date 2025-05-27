@@ -1,38 +1,68 @@
 version: '3.8'
 
 services:
+  postgres:
+    container_name: vezz-postgres
+    image: postgres:15
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: vezz_db
+      POSTGRES_USER: vezz_db
+      POSTGRES_PASSWORD: vezz_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - vezz-network
+
+  vezz-api:
+    container_name: vezz-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: vezz-api
+    ports:
+      - '3003:3000'
+    volumes:
+      - ./api:/usr/src/app
+    networks:
+      - vezz-network
+    environment:
+      DATABASE_URL: postgres://vezz_db:vezz_password@postgres:5432/vezz_db
+    depends_on:
+      - postgres
+      
+  pgadmin:
+    container_name: vezz-pgadmin
+    image: dpage/pgadmin4:latest
+    ports:
+      - "9292:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: EJFm5Kf&nr^tUk
+    networks:
+      - vezz-network
+    depends_on:
+      - postgres
+
   frontend:
-    build: ./front
+    build:
+      context: ./front
     ports:
       - "5173:5173"
     volumes:
-      - .:/app
       - ./front:/app
       - /app/node_modules
     command: yarn dev --host
+    networks:
+      - vezz-network
     depends_on:
-      - backend
-
-  backend:
-    build: ./api
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - vezz-api
 
 volumes:
-  postgres_data:
+  pgdata:
 
+networks:
+  vezz-network:
+    name: vezz-network
