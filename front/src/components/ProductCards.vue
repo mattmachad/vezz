@@ -12,8 +12,8 @@
             </div>
   
             <div class="icons">
-              <img class="icon" :src="favoriteIcon" alt="Favoritar" />
-              <img class="icon" :src="addIcon" alt="Adicionar" />
+              <img class="icon favorite" :src="favoriteIcon" alt="Favoritar" />
+              <img class="icon add" :src="addIcon" alt="Adicionar" />
             </div>
           </div>
   
@@ -131,6 +131,10 @@
   .icon {
     width: 24px;
     cursor: pointer;
+  }
+  
+  .icon.add {
+    filter: brightness(0) invert(1);
   }
   
   .bottom {
