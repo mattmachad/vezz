@@ -12,11 +12,12 @@
           <form @submit.prevent="handleLogin">
             <input v-model="email" type="email" placeholder="Email" required />
             <input v-model="senha" type="password" placeholder="Senha" required />
+            <p v-if="error" class="error">{{ error }}</p>
             <button type="submit">ENTRAR</button>
           </form>
   
           <p class="login-link">
-            Não tem uma conta? <a href="/register">Crie agora</a>
+            Não tem uma conta? <router-link to="/register">Crie agora</router-link>
           </p>
         </div>
       </div>
@@ -25,12 +26,47 @@
   
   <script setup lang="ts">
   import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { useToast } from 'vue-toastification'
   
+  const toast = useToast()
+  const router = useRouter()
   const email = ref('')
   const senha = ref('')
+  const error = ref('')
   
-  function handleLogin() {
-    console.log('Login:', { email: email.value, senha: senha.value })
+  async function handleLogin() {
+    error.value = ''
+    try {
+      const response = await fetch('http://localhost:3003/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: email.value,
+          password: senha.value
+        })
+      })
+  
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao fazer login')
+      }
+  
+      // Store user data in localStorage or state management if needed
+      localStorage.setItem('user', JSON.stringify(data.user))
+      
+      toast.success('Login realizado com sucesso!')
+      // Redirect to home page after successful login
+      router.push('/')
+    } catch (err: any) {
+      error.value = err.message
+      toast.error('Email ou senha incorretos')
+    }
   }
   </script>
   
@@ -123,6 +159,12 @@
 
   }
 
+  .error {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
 
   </style>
   

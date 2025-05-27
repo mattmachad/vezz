@@ -13,6 +13,8 @@
             <input v-model="form.nome" type="text" placeholder="Nome" required />
             <input v-model="form.email" type="email" placeholder="Email" required />
             <input v-model="form.senha" type="password" placeholder="Senha" required />
+            <input v-model="form.cep" type="text" placeholder="CEP" />
+            <input v-model="form.phone" type="text" placeholder="Telefone" />
             <button type="submit">CRIAR CONTA</button>
           </form>
   
@@ -26,10 +28,57 @@
   
   <script setup lang="ts">
   import { ref } from 'vue'
-  const form = ref({ nome: '', email: '', senha: '' })
+  import { useRouter } from 'vue-router'
+  import { useToast } from 'vue-toastification'
   
-  function handleSubmit() {
-    console.log(form.value)
+  const router = useRouter()
+  const toast = useToast()
+  const form = ref({
+    nome: '',
+    email: '',
+    senha: '',
+    cep: '',
+    phone: ''
+  })
+  const error = ref('')
+  const loading = ref(false)
+  
+  async function handleSubmit() {
+    error.value = ''
+    loading.value = true
+    try {
+      // Monta o payload apenas com campos preenchidos
+      const payload: Record<string, string> = {}
+      if (form.value.nome) payload.name = form.value.nome
+      if (form.value.email) payload.email = form.value.email
+      if (form.value.senha) payload.password = form.value.senha
+      if (form.value.cep) payload.cep = form.value.cep
+      if (form.value.phone) payload.phone = form.value.phone
+
+      const response = await fetch('http://localhost:3003/users', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao registrar')
+      }
+
+      toast.success('Conta criada com sucesso!')
+      router.push('/login')
+    } catch (err: any) {
+      error.value = err.message
+      toast.error(error.value || 'Erro ao criar conta')
+    } finally {
+      loading.value = false
+    }
   }
   </script>
   
