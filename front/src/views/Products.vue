@@ -358,6 +358,11 @@ const selectedFilters = ref({
 const rawProducts = ref<Product[]>([])
 const loading = ref(true)
 
+const priceRange = ref({
+  min: 0,
+  max: 1000
+})
+
 const dynamicPriceRange = computed(() => {
   if (rawProducts.value.length === 0) {
     return { min: 0, max: 1000 }
@@ -369,14 +374,6 @@ const dynamicPriceRange = computed(() => {
   
   return { min: minPrice, max: maxPrice }
 })
-
-const priceRange = ref({
-  min: 0,
-  max: 1000
-})
-
-const isDragging = ref<'min' | 'max' | null>(null)
-const sliderRef = ref<HTMLDivElement | null>(null)
 
 const products = computed<DisplayProduct[]>(() => {
   return rawProducts.value.map((product: Product) => {
@@ -905,8 +902,50 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
 }
 
 .cards.list {
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cards.list :deep(.produto01) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  max-height: 160px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.cards.list :deep(.imageWrapper) {
+  flex: 0 0 120px;
+  width: 120px;
+  height: 120px;
+  padding: 0;
+  position: relative;
+}
+
+.cards.list :deep(.fotoIcon) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cards.list :deep(.bottom) {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+}
+
+.cards.list :deep(.row) {
+  margin-bottom: 8px;
 }
 
 .products-grid {
@@ -1240,7 +1279,6 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
   color: #212121;
 }
 
-/* wrapper quadrado */
 .imageWrapper {
   position: relative;
   width: 100%;
@@ -1248,6 +1286,26 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
   overflow: hidden;
   border-radius: 8px;
 }
+
+:global(.cards.list) .imageWrapper {
+  width: 100px;
+  height: 100px;
+  padding-top: 0;
+  min-width: 100px;
+}
+
+:global(.cards.list) .produto01 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+:global(.cards.list) .bottom {
+  flex: 1;
+  margin-top: 0;
+}
+
 .fotoIcon {
   position: absolute;
   top: 0; left: 0;
@@ -1255,7 +1313,6 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
   object-fit: cover;
 }
 
-/* botões sobre a imagem */
 .favoriteBtn,
 .addBtn {
   position: absolute;
@@ -1282,41 +1339,41 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
   transform: scale(1.1);
 }
 
-/* área de texto abaixo */
 .bottom {
   margin-top: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-/* linha com nome/preço ou estoque/tamanhos */
+
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* tipografia */
 .nomeDoTerno {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
 }
+
 .preco {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
 }
+
 .stock {
   font-size: 12px;
   color: #4b4b4b;
 }
 
-/* lista de tamanhos */
 .sizeList {
   display: flex;
   gap: 8px;
 }
+
 .sizeList span {
   font-size: 14px;
   font-weight: 600;
@@ -1325,6 +1382,7 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
   cursor: default;
   padding: 2px 4px;
 }
+
 .sizeList .unavailable {
   color: #bebebe;
   font-weight: 400;
@@ -1361,7 +1419,6 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
   box-shadow: 0 0 0 2px rgba(67, 156, 211, 0.2);
 }
 
-/* Remove as setas do input number */
 .priceInputs input[type="number"]::-webkit-inner-spin-button,
 .priceInputs input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -1384,5 +1441,7 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
   border-radius: 4px;
   cursor: pointer;
 }
-.clearBtn:hover { background: #333 }
+.clearBtn:hover { 
+  background: #333;
+}
 </style>
