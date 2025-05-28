@@ -133,37 +133,46 @@
               />
             </div>
             <div v-show="sectionsOpen.prices" :class="$style.priceSection">
+              <div :class="$style.faixaDeValor">
+                <div :class="$style.mnimo">
+                  <div :class="$style.min">Min</div>
+                  <div :class="$style.input">
+                    <div :class="$style.label">
+                      <div :class="$style.min">
+                        R$ {{ priceRange.min.toFixed(2).replace('.', ',') }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div :class="$style.divider">
+                  <div :class="$style.dividerChild" />
+                </div>
+                <div :class="$style.mnimo">
+                  <div :class="$style.min">Max</div>
+                  <div :class="$style.input">
+                    <div :class="$style.label">
+                      <div :class="$style.min">
+                        R$ {{ priceRange.max.toFixed(2).replace('.', ',') }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div :class="$style.rangeWrapper">
                 <input
                   type="range"
                   v-model.number="priceRange.min"
                   :min="dynamicPriceRange.min"
                   :max="dynamicPriceRange.max"
+                  @input="validatePriceRange('min')"
                 />
                 <input
                   type="range"
                   v-model.number="priceRange.max"
                   :min="dynamicPriceRange.min"
                   :max="dynamicPriceRange.max"
+                  @input="validatePriceRange('max')"
                 />
-              </div>
-              <div :class="$style.priceInputs">
-                <div>
-                  <label>Min</label>
-                  <input
-                    type="text"
-                    :value="`R$ ${priceRange.min.toFixed(2)}`"
-                    disabled
-                  />
-                </div>
-                <div>
-                  <label>Max</label>
-                  <input
-                    type="text"
-                    :value="`R$ ${priceRange.max.toFixed(2)}`"
-                    disabled
-                  />
-                </div>
               </div>
             </div>
           </section>
@@ -318,7 +327,7 @@
 
 <script setup lang="ts">
 import NavBar from '../components/NavBar.vue'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, useCssModule } from 'vue'
 import api from '../services/api'
 import type { Product, DisplayProduct } from '../types/product'
 
@@ -328,6 +337,8 @@ import favoriteIconFilled from '../assets/cards/favorite_filled.svg'
 import vezzLogo from '../assets/cards/vezz-logo.png'
 import radioButtonChecked from '../assets/radio_button_checked.svg'
 import radioButtonUnchecked from '../assets/radio_button_unchecked.svg'
+
+const style = useCssModule()
 
 const sectionsOpen = ref({
   categories: true,
@@ -609,6 +620,36 @@ const fetchProducts = async () => {
 onMounted(() => {
   fetchProducts()
 })
+
+const validatePriceRange = (type: 'min' | 'max') => {
+  if (type === 'min') {
+    if (priceRange.value.min > priceRange.value.max) {
+      priceRange.value.min = priceRange.value.max;
+    }
+    if (priceRange.value.min < dynamicPriceRange.value.min) {
+      priceRange.value.min = dynamicPriceRange.value.min;
+    }
+  } else {
+    if (priceRange.value.max < priceRange.value.min) {
+      priceRange.value.max = priceRange.value.min;
+    }
+    if (priceRange.value.max > dynamicPriceRange.value.max) {
+      priceRange.value.max = dynamicPriceRange.value.max;
+    }
+  }
+}
+
+watch([() => priceRange.value.min, () => priceRange.value.max], () => {
+  const rangeWrapper = document.querySelector(`.${style.rangeWrapper}`) as HTMLElement;
+  if (rangeWrapper) {
+    const totalRange = dynamicPriceRange.value.max - dynamicPriceRange.value.min;
+    const leftPercent = ((priceRange.value.min - dynamicPriceRange.value.min) / totalRange) * 100;
+    const rightPercent = ((dynamicPriceRange.value.max - priceRange.value.max) / totalRange) * 100;
+    
+    rangeWrapper.style.setProperty('--left-percent', `${leftPercent}%`);
+    rangeWrapper.style.setProperty('--right-percent', `${rightPercent}%`);
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>
@@ -1072,27 +1113,107 @@ onMounted(() => {
   background-color: #f5f5f5;
 }
 
-.priceSection { margin-top: 8px }
-.rangeWrapper {
+.priceSection {
+  margin-top: 32px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 24px;
+}
+
+.faixaDeValor {
   position: relative;
-  height: 4px;
-  background: #ddd;
-  border-radius: 2px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  text-align: center;
+  font-size: 15px;
+  color: #8e8e8e;
+  font-family: Roboto;
   margin-bottom: 16px;
 }
+
+.mnimo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+.min {
+  position: relative;
+  letter-spacing: 1.25px;
+  line-height: 16px;
+}
+
+.input {
+  width: 130px;
+  border-radius: 8px;
+  background-color: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8px;
+  box-sizing: border-box;
+  color: #212121;
+}
+
+.divider {
+  align-self: stretch;
+  width: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 21px 0px 0px;
+  box-sizing: border-box;
+}
+
+.dividerChild {
+  align-self: stretch;
+  position: relative;
+  border-radius: 2222px;
+  background-color: #d9d9d9;
+  height: 4px;
+}
+
+.rangeWrapper {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: #d9d9d9;
+  border-radius: 2222px;
+  margin: 8px 0 24px;
+}
+
+.rangeWrapper::before {
+  content: '';
+  position: absolute;
+  height: 4px;
+  background: #439cd3;
+  border-radius: 2222px;
+  left: var(--left-percent);
+  right: var(--right-percent);
+  z-index: 1;
+}
+
 .rangeWrapper input[type="range"] {
   position: absolute;
-  top: 50%;
+  top: -6px;
   left: 0;
   width: 100%;
-  transform: translateY(-50%);
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   background: transparent;
   pointer-events: none;
 }
+
 .rangeWrapper input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 16px;
   height: 16px;
   background: #fff;
@@ -1100,41 +1221,16 @@ onMounted(() => {
   border-radius: 50%;
   cursor: grab;
   pointer-events: all;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 2;
 }
 
-.priceInputs {
-  display: flex;
-  gap: 16px;
-}
-.priceInputs label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
-  display: block;
-}
-.priceInputs input {
-  border: none;
-  background: #f1f1f1;
-  padding: 6px 8px;
-  border-radius: 4px;
-  width: 80px;
-  color: #333;
-  text-align: center;
-}
-
-.clearBtn {
+.rangeWrapper input[type="range"]::-webkit-slider-runnable-track {
   width: 100%;
-  padding: 12px;
-  background: #000;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  height: 4px;
+  background: transparent;
 }
-.clearBtn:hover { background: #333 }
 
 .produto01 {
   width: 100%;
@@ -1233,4 +1329,60 @@ onMounted(() => {
   color: #bebebe;
   font-weight: 400;
 }
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.prefix {
+  position: absolute;
+  left: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.priceInputs input {
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 8px;
+  padding-left: 28px;
+  border-radius: 4px;
+  width: 100px;
+  color: #333;
+  text-align: right;
+  font-size: 14px;
+}
+
+.priceInputs input:focus {
+  outline: none;
+  border-color: #439cd3;
+  box-shadow: 0 0 0 2px rgba(67, 156, 211, 0.2);
+}
+
+/* Remove as setas do input number */
+.priceInputs input[type="number"]::-webkit-inner-spin-button,
+.priceInputs input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.priceInputs input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.clearBtn {
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.clearBtn:hover { background: #333 }
 </style>
