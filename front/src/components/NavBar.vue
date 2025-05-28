@@ -1,10 +1,10 @@
 <template>
   <header class="header">
     <div class="container">
-      <img class="nav-icon" alt="Logo VEZZ" src="@/assets/vezz-logo.png" />
+      <router-link to="/"><img class="nav-icon" alt="Logo VEZZ" src="@/assets/vezz-logo.png" /></router-link>
 
       <nav class="main-menu">
-        <a href="#" class="nav-link">CATÁLOGO</a>
+        <router-link to="/products" class="nav-link">CATÁLOGO</router-link>
         <a href="#" class="nav-link">LOOKBOOK</a>
         <a href="#" class="nav-link">SOBRE</a>
       </nav>

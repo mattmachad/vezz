@@ -9,17 +9,16 @@ export class Product {
   @Column({ unique: true })
   title: string;
 
-  @Column()
+  @Column({ type: 'float' })
   price: number;
 
-  @Column()
-  quantity: number;
+  @Column('jsonb')
+  quantities: {
+    [key in Size]?: number;
+  };
 
   @Column()
   color: string;
-
-  @Column({ type: 'enum', enum: Size, nullable: true })
-  size: Size;
 
   @Column({ type: 'enum', enum: Gender, nullable: true })
   gender: Gender;

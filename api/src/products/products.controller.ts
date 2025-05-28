@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
+import { Size } from '../type/enum';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
@@ -33,34 +34,41 @@ export class ProductsController {
     return this.productsService.remove(+id);
   }
 
- @Post('buy/:id')
-async buy(@Param('id') id: string) {
-  const parsedId = parseInt(id);
-  
-  if (isNaN(parsedId)) {
-    return { error: 'ID inválido' };
+  @Post('buy/:id/:size')
+  async buy(@Param('id') id: string, @Param('size') size: Size) {
+    const parsedId = parseInt(id);
+
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('ID inválido');
+    }
+
+    const product = await this.productsService.findOne(parsedId);
+
+    if (!product) {
+      throw new BadRequestException('Produto não encontrado');
+    }
+
+    if (!product.quantities[size] || product.quantities[size] <= 0) {
+      throw new BadRequestException('Produto sem estoque disponível para este tamanho');
+    }
+
+    // Create a new quantities object with the updated quantity
+    const updatedQuantities = {
+      ...product.quantities,
+      [size]: product.quantities[size] - 1
+    };
+
+    const updatedProductDto = {
+      ...product,
+      quantities: updatedQuantities
+    };
+
+    await this.productsService.update(parsedId, updatedProductDto);
+
+    const updatedProduct = await this.productsService.findOne(parsedId);
+    return {
+      message: 'Compra realizada com sucesso',
+      product: updatedProduct,
+    };
   }
-
-  const product = await this.productsService.findOne(parsedId);
-  console.log(product);
-
-  if (!product) {
-    return { message: 'Produto não encontrado' };
-  }
-
-  if (product.quantity <= 0) {
-    return { message: 'Produto sem estoque disponível' };
-  }
-
-  const updatedProductDto = { ...product, quantity: product.quantity - 1 };
-  await this.productsService.update(parsedId, updatedProductDto);
-
-  const updatedProduct = await this.productsService.findOne(parsedId);
-  return {
-    message: 'Compra realizada com sucesso',
-    product: updatedProduct,
-  };
-}
-
-
 }
