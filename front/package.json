@@ -6,15 +6,24 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:check": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
+    "axios": "^1.6.7",
+    "vue": "^3.5.15",
+    "vue-router": "^4.2.5",
     "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.2",
-    "vite": "^6.3.1"
+    "@types/node": "^20.11.16",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vue/compiler-sfc": "^3.5.15",
+    "@vue/reactivity": "^3.5.15",
+    "@vue/runtime-core": "^3.5.15",
+    "@vue/runtime-dom": "^3.5.15",
+    "typescript": "^5.8.3",
+    "vite": "^5.0.12",
+    "vue-tsc": "^1.8.27"
   }
 }

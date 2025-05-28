@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
 import { Category, Gender, Size } from '../../type/enum';
 
 export class CreateProductDto {
@@ -6,21 +6,19 @@ export class CreateProductDto {
   @IsNotEmpty()
   title: string;
 
-  @IsNumber()
   @Min(0)
   price: number;
 
-  @IsNumber()
-  @Min(0)
-  quantity: number;
+
+  @IsObject()
+  @IsNotEmpty()
+  quantities: {
+    [key in Size]?: number;
+  };
 
   @IsString()
   @IsNotEmpty()
   color: string;
-
-  @IsOptional()
-  @IsEnum(Size)
-  size?: Size;
 
   @IsOptional()
   @IsEnum(Gender)

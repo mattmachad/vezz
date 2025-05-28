@@ -35,6 +35,15 @@
   const senha = ref('')
   const error = ref('')
   
+  interface LoginResponse {
+    user: {
+      id: number;
+      name: string;
+      email: string;
+    };
+    message?: string;
+  }
+  
   async function handleLogin() {
     error.value = ''
     try {
@@ -51,7 +60,7 @@
         })
       })
   
-      const data = await response.json()
+      const data: LoginResponse = await response.json()
       
       if (!response.ok) {
         throw new Error(data.message || 'Erro ao fazer login')
