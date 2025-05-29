@@ -53,6 +53,7 @@
   <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter } from 'vue-router'
+  import { useCartStore } from '@/stores/cart'
   import model1 from '@/assets/cards/model1.png'
   import model2 from '@/assets/cards/model2.png'
   import model3 from '@/assets/cards/model3.png'
@@ -64,11 +65,8 @@
 
   const router = useRouter()
 
-  const goToProducts = () => {
-    router.push('/products')
-  }
-  
   interface LocalProduct {
+    id: number;
     name: string;
     price: string;
     stock: number;
@@ -76,11 +74,27 @@
   }
   
   const products = ref<LocalProduct[]>([
-    { name: 'Terno Milano', price: '349,90', stock: 9, image: model1 },
-    { name: 'Terno Preto', price: '389,99', stock: 3, image: model2 },
-    { name: 'Terno Cinza Grafite', price: '429,50', stock: 2, image: model3 },
-    { name: 'Terno Chumbo', price: '379,00', stock: 1, image: model4 },
+    { id: 1, name: 'Terno Milano', price: '349,90', stock: 9, image: model1 },
+    { id: 2, name: 'Terno Preto', price: '389,99', stock: 3, image: model2 },
+    { id: 3, name: 'Terno Cinza Grafite', price: '429,50', stock: 2, image: model3 },
+    { id: 4, name: 'Terno Chumbo', price: '379,00', stock: 1, image: model4 },
   ])
+
+  const goToProducts = () => {
+    router.push('/products')
+  }
+
+  const addToCart = (product: LocalProduct) => {
+    const cartStore = useCartStore()
+    cartStore.addToCart({
+      id: product.id,
+      name: product.name,
+      price: parseFloat(product.price.replace(',', '.')),
+      size: 'P',
+      quantity: 1,
+      image: product.image
+    })
+  }
   </script>
   
   <style scoped>
@@ -119,11 +133,15 @@
     gap: 8px;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   
   .produto:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
   }
   
   .contents {
@@ -131,7 +149,7 @@
     height: 320px;
     position: relative;
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: 16px 16px 0 0;
     transition: transform 0.3s ease;
   }
   
@@ -160,7 +178,7 @@
   
   .icons {
     position: absolute;
-    bottom: 10px;
+    bottom: 8px;
     left: 8px;
     right: 8px;
     display: flex;
@@ -169,22 +187,42 @@
   }
   
   .icon {
-    width: 24px;
+    width: 36px;
+    height: 36px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     cursor: pointer;
+    transition: transform 0.2s ease;
+    padding: 6px;
   }
   
-  .icon.add {
-    filter: brightness(0) invert(1);
+  .icon:hover {
+    transform: scale(1.1);
+  }
+  
+  .icon img {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .icon.add img {
+    filter: brightness(0);
   }
   
   .bottom {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
     text-align: left;
     color: #212121;
     font-size: 14px;
+    padding: 16px;
+    background: white;
+    border-radius: 0 0 16px 16px;
   }
   
   .info, .stock {
