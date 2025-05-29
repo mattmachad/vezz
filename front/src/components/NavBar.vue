@@ -11,7 +11,8 @@
         <router-link to="/about" class="nav-link" @click="closeMobileMenu">SOBRE</router-link>
       </nav>
 
-      <button class="hamburger" @click="toggleMobileMenu" aria-label="Abrir menu" v-show="isMobile && !isMobileMenuOpen">
+      <button class="hamburger" @click="toggleMobileMenu" aria-label="Abrir menu"
+        v-show="isMobile && !isMobileMenuOpen">
         <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
         <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
         <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
@@ -29,10 +30,9 @@
             <router-link to="/lookbook" class="nav-link" @click="closeMobileMenu">LOOKBOOK</router-link>
             <router-link to="/about" class="nav-link" @click="closeMobileMenu">SOBRE</router-link>
             <div class="mobile-icons">
-              <router-link to="/" class="mobile-link" @click="closeMobileMenu">Buscar</router-link>
-              <router-link to="/" class="mobile-link" @click="closeMobileMenu">Favoritos</router-link>
+              <router-link v-if="isUserLoggedIn" to="/wishlist" class="mobile-link" @click="closeMobileMenu">Favoritos</router-link>
               <router-link to="/login" class="mobile-link" @click="closeMobileMenu">Perfil</router-link>
-              <router-link to="/checkout" class="mobile-link" @click="closeMobileMenu">Sacola</router-link>
+              <router-link v-if="isUserLoggedIn" to="/checkout" class="mobile-link" @click="closeMobileMenu">Sacola</router-link>
             </div>
           </nav>
         </div>
@@ -42,16 +42,23 @@
         <button class="dark-mode-btn" @click="toggleDarkMode">
           <img class="icon" :alt="darkModeStore.isDark ? 'Modo Claro' : 'Modo Escuro'" :src="darkModeIcon" />
         </button>
-        <router-link to="/">
-          <img class="icon" alt="Buscar" :src="darkModeStore.isDark ? searchIconWhite : searchIcon" />
-        </router-link>
-        <router-link to="/">
+        <router-link v-if="isUserLoggedIn" to="/wishlist">
           <img class="icon" alt="Favoritos" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" />
         </router-link>
-        <router-link to="/login">
-          <img class="icon" alt="Conta" :src="darkModeStore.isDark ? accountIconWhite : accountIcon" />
-        </router-link>
-        <router-link to="/checkout" class="cart-link">
+        <div class="profile-container">
+          <div class="auth-status">
+            <svg v-if="!isUserLoggedIn" class="auth-icon logged-out" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            <svg v-else class="auth-icon logged-in" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+          <router-link to="/login">
+            <img class="icon" alt="Conta" :src="darkModeStore.isDark ? accountIconWhite : accountIcon" />
+          </router-link>
+        </div>
+        <router-link v-if="isUserLoggedIn" to="/checkout" class="cart-link">
           <img class="icon" alt="Carrinho" :src="darkModeStore.isDark ? cartIconWhite : cartIcon" />
           <span v-if="itemCount > 0" class="cart-badge">{{ itemCount }}</span>
         </router-link>
@@ -64,14 +71,13 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { useDarkModeStore } from '@/stores/darkMode'
+import { useAuthStore } from '@/stores/auth'
 import type { CartItem } from '@/stores/cart'
 import darkModeIconSrc from '@/assets/dark_mode.svg'
 import lightModeIconSrc from '@/assets/light_mode.svg'
 import lightModeIconWhite from '@/assets/light_mode-white.svg'
 import logoLight from '@/assets/vezz-logo.png'
 import logoDark from '@/assets/vezz-logo-white.svg'
-import searchIcon from '@/assets/search.svg'
-import searchIconWhite from '@/assets/search-white.svg'
 import favoriteIcon from '@/assets/favorite.svg'
 import favoriteIconWhite from '@/assets/favorite-white.svg'
 import accountIcon from '@/assets/account_circle.svg'
@@ -81,6 +87,7 @@ import cartIconWhite from '@/assets/shopping_bag-white.svg'
 
 const cartStore = ref(useCartStore())
 const darkModeStore = useDarkModeStore()
+const authStore = useAuthStore()
 
 const itemCount = computed(() => {
   if (!cartStore.value?.items) return 0
@@ -116,6 +123,10 @@ const toggleMobileMenu = () => {
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
+
+const isUserLoggedIn = computed(() => {
+  return !!localStorage.getItem('user')
+})
 
 onMounted(() => {
   checkMobile()
@@ -189,9 +200,11 @@ onUnmounted(() => {
 .hamburger .bar.open:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
+
 .hamburger .bar.open:nth-child(2) {
   opacity: 0;
 }
+
 .hamburger .bar.open:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
 }
@@ -200,9 +213,11 @@ onUnmounted(() => {
   .main-menu {
     display: none;
   }
+
   .main-menu.hidden {
     display: none;
   }
+
   .hamburger {
     display: flex;
   }
@@ -214,7 +229,7 @@ onUnmounted(() => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1200;
   display: flex;
   align-items: flex-start;
@@ -223,7 +238,7 @@ onUnmounted(() => {
 
 .mobile-menu {
   background: var(--nav-bg);
-  box-shadow: -2px 0 16px rgba(0,0,0,0.12);
+  box-shadow: -2px 0 16px rgba(0, 0, 0, 0.12);
   width: 220px;
   height: 100vh;
   padding: 48px 24px 24px 24px;
@@ -236,18 +251,27 @@ onUnmounted(() => {
 }
 
 @keyframes slideInMenu {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
-.mobile-menu-fade-enter-active, .mobile-menu-fade-leave-active {
+.mobile-menu-fade-enter-active,
+.mobile-menu-fade-leave-active {
   transition: opacity 0.3s;
 }
-.mobile-menu-fade-enter-from, .mobile-menu-fade-leave-to {
+
+.mobile-menu-fade-enter-from,
+.mobile-menu-fade-leave-to {
   opacity: 0;
 }
 
-.nav-link, .mobile-link {
+.nav-link,
+.mobile-link {
   text-transform: uppercase;
   font-weight: 500;
   font-size: 14px;
@@ -259,7 +283,8 @@ onUnmounted(() => {
   opacity: 0.85;
 }
 
-.nav-link:hover, .mobile-link:hover {
+.nav-link:hover,
+.mobile-link:hover {
   opacity: 0.6;
   color: var(--primary-color);
 }
@@ -312,7 +337,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .dark-mode-btn {
@@ -334,16 +359,62 @@ onUnmounted(() => {
   height: 24px;
 }
 
+.profile-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-status {
+  position: absolute;
+  top: -10px;
+  right: -5px;
+  background: var(--nav-bg);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.auth-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.auth-icon path {
+  fill: currentColor;
+}
+
+/* Make the selectors more specific and force the colors */
+.profile-container .auth-status .auth-icon.logged-in {
+  color: #28a745 !important;
+}
+
+.profile-container .auth-status .auth-icon.logged-out {
+  color: #ff0000 !important;
+}
+
+/* Remove any other color inheritance */
+.profile-container .auth-status svg {
+  color: unset;
+}
+
 :root {
   --nav-bg: #fff;
   --nav-shadow: 0px 10px 21px rgba(0, 0, 0, 0.15);
   --text-color: #212121;
+  --auth-icon-color: #dc3545;
 }
 
 :root.dark-mode {
   --nav-bg: #212121;
   --nav-shadow: 0px 10px 21px rgba(255, 255, 255, 0.15);
   --text-color: #fff;
+  --auth-icon-color: #28a745;
 }
 
 .mobile-icons {

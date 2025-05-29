@@ -16,9 +16,9 @@
               <img class="vezz-logo" :src="darkModeStore.isDark ? vezzLogoWhite : vezzLogo" alt="Vezz logo" />
             </div>
   
-            <div class="icons">
-              <img class="icon favorite" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" alt="Favoritar" />
-              <img class="icon add" :src="darkModeStore.isDark ? addIconWhite : addIcon" alt="Adicionar" />
+            <div v-if="isUserLoggedIn" class="icons">
+              <img class="icon favorite" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" alt="Favoritar" @click.stop="toggleFavorite(product)" />
+              <img class="icon add" :src="darkModeStore.isDark ? addIconWhite : addIcon" alt="Adicionar" @click.stop="addToCart(product)" />
             </div>
           </div>
   
@@ -51,10 +51,11 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
   import { useRouter } from 'vue-router'
   import { useCartStore } from '@/stores/cart'
   import { useDarkModeStore } from '@/stores/darkMode'
+  import { useAuthStore } from '@/stores/auth'
   import model1 from '@/assets/cards/model1.png'
   import model2 from '@/assets/cards/model2.png'
   import model3 from '@/assets/cards/model3.png'
@@ -69,6 +70,12 @@
 
   const router = useRouter()
   const darkModeStore = useDarkModeStore()
+  const cartStore = useCartStore()
+  const authStore = useAuthStore()
+
+  const isUserLoggedIn = computed(() => {
+    return !!localStorage.getItem('user')
+  })
 
   interface LocalProduct {
     id: number;
@@ -90,7 +97,8 @@
   }
 
   const addToCart = (product: LocalProduct) => {
-    const cartStore = useCartStore()
+    if (!isUserLoggedIn.value) return
+    
     cartStore.addToCart({
       id: product.id,
       name: product.name,
@@ -99,6 +107,11 @@
       quantity: 1,
       image: product.image
     })
+  }
+
+  const toggleFavorite = (product: LocalProduct) => {
+    if (!isUserLoggedIn.value) return
+    // Implementar lógica de favoritos aqui
   }
   </script>
   

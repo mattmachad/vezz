@@ -13,12 +13,8 @@
             <div :class="$style.carrinho">Carrinho</div>
             <div :class="$style.vDivider" />
           </div>
-          
-          <div 
-            v-if="!cartStore?.items?.length" 
-            :class="$style.emptyCart"
-            @click="showEmptyCartMessage"
-          >
+
+          <div v-if="!cartStore?.items?.length" :class="$style.emptyCart" @click="showEmptyCartMessage">
             <img :class="$style.emptyCartIcon" src="@/assets/shopping-cart.svg" alt="Carrinho Vazio" />
             <h2 :class="$style.emptyCartTitle">Seu carrinho está vazio</h2>
             <p :class="$style.emptyCartText">
@@ -30,11 +26,7 @@
             </button>
           </div>
 
-          <div 
-            v-for="item in cartStore?.items || []" 
-            :key="`${item.id}-${item.size}`"
-            :class="$style.product"
-          >
+          <div v-for="item in cartStore?.items || []" :key="`${item.id}-${item.size}`" :class="$style.product">
             <img :class="$style.photoIcon" alt="" :src="item.image" />
             <div :class="$style.contentsRight">
               <div :class="$style.infoProduct">
@@ -51,43 +43,24 @@
               <div :class="$style.body">
                 <div :class="$style.left1">
                   <div :class="$style.tamanho">
-                    <select 
-                      v-model="item.size" 
-                      :class="$style.sizeSelect"
-                      @focus="checkAndUpdateStock(item.id, item.size)"
-                      @change="onSizeChange($event, item)"
-                    >
-                      <option 
-                        v-for="size in getAvailableSizes(item.id)" 
-                        :key="size" 
-                        :value="size"
-                        :disabled="getAvailableQuantity(item.id, size) === 0"
-                      >
+                    <select v-model="item.size" :class="$style.sizeSelect"
+                      @focus="checkAndUpdateStock(item.id, item.size)" @change="onSizeChange($event, item)">
+                      <option v-for="size in getAvailableSizes(item.id)" :key="size" :value="size"
+                        :disabled="getAvailableQuantity(item.id, size) === 0">
                         {{ size }}
                       </option>
                     </select>
                   </div>
                   <div :class="$style.quantidade">
-                    <img 
-                      :class="$style.swapVertIcon" 
-                      alt="diminuir" 
-                      src="@/assets/check_indeterminate_small.svg"
-                      @click="updateQuantity(item.id, item.size, item.quantity - 1)"
-                    />
-                    <input
-                      v-model.number="item.quantity"
-                      type="number"
-                      min="1"
-                      :max="getAvailableQuantity(item.id, item.size)"
-                      :class="$style.quantityInput"
-                      @input="validateQuantity(item)"
-                    />
-                    <img 
-                      :class="[$style.swapVertIcon, item.quantity >= getAvailableQuantity(item.id, item.size) ? $style.disabled : '']" 
-                      alt="aumentar" 
-                      src="@/assets/add.svg"
-                      @click="updateQuantity(item.id, item.size, item.quantity + 1)"
-                    />
+                    <img :class="$style.swapVertIcon" alt="diminuir" src="@/assets/check_indeterminate_small.svg"
+                      @click="updateQuantity(item.id, item.size, item.quantity - 1)" />
+                    <input v-model.number="item.quantity" type="number" min="1"
+                      :max="getAvailableQuantity(item.id, item.size)" :class="$style.quantityInput"
+                      @input="validateQuantity(item)" />
+                    <img
+                      :class="[$style.swapVertIcon, item.quantity >= getAvailableQuantity(item.id, item.size) ? $style.disabled : '']"
+                      alt="aumentar" src="@/assets/add.svg"
+                      @click="updateQuantity(item.id, item.size, item.quantity + 1)" />
                   </div>
                 </div>
                 <div :class="$style.delete" @click="removeFromCart(item.id, item.size)">
@@ -109,69 +82,55 @@
             </div>
             <div :class="$style.inputsAdress">
               <div :class="$style.rua">
-                <div :class="$style.head2"><div :class="$style.estado">CEP:</div></div>
+                <div :class="$style.head2">
+                  <div :class="$style.estado">CEP:</div>
+                </div>
                 <div :class="$style.label">
-                  <input 
-                    v-model="address.zipCode"
-                    :class="$style.estado" 
-                    placeholder="00000-000"
-                    @input="formatCEP"
-                    @blur="searchCEP"
-                  />
+                  <input v-model="address.zipCode" :class="$style.estado" placeholder="00000-000" @input="formatCEP"
+                    @blur="searchCEP" />
                 </div>
               </div>
               <div :class="$style.rua">
-                <div :class="$style.head2"><div :class="$style.estado">Rua:</div></div>
+                <div :class="$style.head2">
+                  <div :class="$style.estado">Rua:</div>
+                </div>
                 <div :class="$style.label">
-                  <input 
-                    v-model="address.street"
-                    :class="$style.estado" 
-                    placeholder="Rua"
-                    :disabled="loadingAddress"
-                  />
+                  <input v-model="address.street" :class="$style.estado" placeholder="Rua" :disabled="loadingAddress" />
                 </div>
               </div>
               <div :class="$style.rua">
-                <div :class="$style.head2"><div :class="$style.estado">Número:</div></div>
+                <div :class="$style.head2">
+                  <div :class="$style.estado">Número:</div>
+                </div>
                 <div :class="$style.label">
-                  <input 
-                    v-model="address.number"
-                    :class="$style.estado" 
-                    placeholder="Número"
-                  />
+                  <input v-model="address.number" :class="$style.estado" placeholder="Número" />
                 </div>
               </div>
               <div :class="$style.rua">
-                <div :class="$style.head2"><div :class="$style.estado">Bairro:</div></div>
+                <div :class="$style.head2">
+                  <div :class="$style.estado">Bairro:</div>
+                </div>
                 <div :class="$style.label">
-                  <input 
-                    v-model="address.neighborhood"
-                    :class="$style.estado" 
-                    placeholder="Bairro"
-                    :disabled="loadingAddress"
-                  />
+                  <input v-model="address.neighborhood" :class="$style.estado" placeholder="Bairro"
+                    :disabled="loadingAddress" />
                 </div>
               </div>
               <div :class="$style.cidadecep">
                 <div :class="$style.cidade">
-                  <div :class="$style.head2"><div :class="$style.estado">Cidade:</div></div>
+                  <div :class="$style.head2">
+                    <div :class="$style.estado">Cidade:</div>
+                  </div>
                   <div :class="$style.label">
-                    <input 
-                      v-model="address.city"
-                      :class="$style.estado" 
-                      placeholder="Cidade"
-                      :disabled="loadingAddress"
-                    />
+                    <input v-model="address.city" :class="$style.estado" placeholder="Cidade"
+                      :disabled="loadingAddress" />
                   </div>
                 </div>
                 <div :class="$style.cidade">
-                  <div :class="$style.head2"><div :class="$style.estado">Estado:</div></div>
+                  <div :class="$style.head2">
+                    <div :class="$style.estado">Estado:</div>
+                  </div>
                   <div :class="$style.label3">
-                    <select 
-                      v-model="address.state"
-                      :class="$style.estado"
-                      :disabled="loadingAddress"
-                    >
+                    <select v-model="address.state" :class="$style.estado" :disabled="loadingAddress">
                       <option value="" disabled selected>Estado</option>
                       <option v-for="state in states" :key="state" :value="state">{{ state }}</option>
                     </select>
@@ -188,26 +147,20 @@
                 <div :class="$style.carrinho">Método de Pagamento</div>
                 <div :class="$style.vDivider" />
               </div>
-              
+
               <div :class="$style.paymentMethods">
-                <div 
-                  :class="[$style.paymentMethod, payment.method === 'credit' && $style.selected]"
-                  @click="payment.method = 'credit'"
-                >
+                <div :class="[$style.paymentMethod, payment.method === 'credit' && $style.selected]"
+                  @click="payment.method = 'credit'">
                   <img :class="$style.paymentIcon" src="../assets/credit-card.svg" alt="Cartão de Crédito" />
                   <span>Cartão de Crédito</span>
                 </div>
-                <div 
-                  :class="[$style.paymentMethod, payment.method === 'pix' && $style.selected]"
-                  @click="payment.method = 'pix'"
-                >
+                <div :class="[$style.paymentMethod, payment.method === 'pix' && $style.selected]"
+                  @click="payment.method = 'pix'">
                   <img :class="$style.paymentIcon" src="../assets/pix.svg" alt="PIX" />
                   <span>PIX</span>
                 </div>
-                <div 
-                  :class="[$style.paymentMethod, payment.method === 'boleto' && $style.selected]"
-                  @click="payment.method = 'boleto'"
-                >
+                <div :class="[$style.paymentMethod, payment.method === 'boleto' && $style.selected]"
+                  @click="payment.method = 'boleto'">
                   <img :class="$style.paymentIcon" src="../assets/boleto.svg" alt="Boleto Bancário" />
                   <span>Boleto Bancário</span>
                 </div>
@@ -221,13 +174,8 @@
                     <div v-if="cardErrors.number" :class="$style.errorText">{{ cardErrors.number }}</div>
                   </div>
                   <div :class="[$style.label, cardErrors.number && $style.errorInput]">
-                    <input 
-                      v-model="payment.cardNumber"
-                      :class="$style.estado" 
-                      placeholder="0000 0000 0000 0000"
-                      @input="formatCardNumber"
-                      @blur="validateCardNumber"
-                    />
+                    <input v-model="payment.cardNumber" :class="$style.estado" placeholder="0000 0000 0000 0000"
+                      @input="formatCardNumber" @blur="validateCardNumber" />
                   </div>
                 </div>
                 <div :class="$style.rua">
@@ -236,12 +184,8 @@
                     <div v-if="cardErrors.name" :class="$style.errorText">{{ cardErrors.name }}</div>
                   </div>
                   <div :class="[$style.label, cardErrors.name && $style.errorInput]">
-                    <input 
-                      v-model="payment.cardName"
-                      :class="$style.estado" 
-                      placeholder="Nome como está no cartão"
-                      @blur="validateCardName"
-                    />
+                    <input v-model="payment.cardName" :class="$style.estado" placeholder="Nome como está no cartão"
+                      @blur="validateCardName" />
                   </div>
                 </div>
                 <div :class="$style.cidadecep">
@@ -251,13 +195,8 @@
                       <div v-if="cardErrors.expiry" :class="$style.errorText">{{ cardErrors.expiry }}</div>
                     </div>
                     <div :class="[$style.label, cardErrors.expiry && $style.errorInput]">
-                      <input 
-                        v-model="payment.expiryDate"
-                        :class="$style.estado" 
-                        placeholder="MM/AA"
-                        @input="formatExpiryDate"
-                        @blur="validateExpiryDate"
-                      />
+                      <input v-model="payment.expiryDate" :class="$style.estado" placeholder="MM/AA"
+                        @input="formatExpiryDate" @blur="validateExpiryDate" />
                     </div>
                   </div>
                   <div :class="$style.cidade">
@@ -266,13 +205,8 @@
                       <div v-if="cardErrors.cvv" :class="$style.errorText">{{ cardErrors.cvv }}</div>
                     </div>
                     <div :class="[$style.label, cardErrors.cvv && $style.errorInput]">
-                      <input 
-                        v-model="payment.cvv"
-                        :class="$style.estado" 
-                        placeholder="000"
-                        maxlength="3"
-                        @blur="validateCVV"
-                      />
+                      <input v-model="payment.cvv" :class="$style.estado" placeholder="000" maxlength="3"
+                        @blur="validateCVV" />
                     </div>
                   </div>
                 </div>
@@ -332,10 +266,14 @@
             </div>
             <div :class="$style.buttons">
               <div :class="$style.vBtn" @click="finishOrder">
-                <div :class="$style.content"><div :class="$style.text">FECHAR PEDIDO</div></div>
+                <div :class="$style.content">
+                  <div :class="$style.text">FECHAR PEDIDO</div>
+                </div>
               </div>
               <div :class="$style.vBtn1" @click="continueShopping">
-                <div :class="$style.content"><div :class="$style.text">CONTINUAR COMPRANDO</div></div>
+                <div :class="$style.content">
+                  <div :class="$style.text">CONTINUAR COMPRANDO</div>
+                </div>
               </div>
             </div>
           </div>
@@ -350,8 +288,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
 import type { CartItem } from '@/stores/cart'
 import api from '@/services/api'
+import { watch } from 'vue'
+
 
 interface ProductDetails {
   quantities: {
@@ -368,6 +309,7 @@ interface ProductState {
 
 const router = useRouter()
 const cartStore = ref()
+const authStore = useAuthStore()
 const productsDetails = ref<Map<number, ProductState>>(new Map())
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -375,7 +317,7 @@ const toastMessage = ref('')
 const showEmptyCartMessage = () => {
   toastMessage.value = 'Adicione um produto no seu carrinho.'
   showToast.value = true
-  
+
   setTimeout(() => {
     showToast.value = false
   }, 3000)
@@ -383,6 +325,16 @@ const showEmptyCartMessage = () => {
 
 onMounted(async () => {
   try {
+    // Check if user is logged in
+    if (!authStore.isLoggedIn) {
+      toastMessage.value = 'Você precisa estar logado para acessar o carrinho'
+      showToast.value = true
+      setTimeout(() => {
+        router.push('/login')
+      }, 1500)
+      return
+    }
+    
     cartStore.value = useCartStore()
     // Only redirect if cart is empty
     if (!cartStore.value?.items?.length) {
@@ -437,12 +389,12 @@ const updateProductDetails = (itemId: number, product: ProductDetails) => {
 
 const checkAndUpdateStock = async (itemId: number, currentSize: string) => {
   if (!cartStore.value?.items) return
-  
+
   try {
     // Get latest product details from API
     const response = await api.get<ProductDetails>(`/products/${itemId}`)
     const product = response.data
-    
+
     // Update our local state
     updateProductDetails(itemId, product)
 
@@ -452,7 +404,7 @@ const checkAndUpdateStock = async (itemId: number, currentSize: string) => {
 
     // Check if current size is still available and has enough stock
     const currentStockAvailable = product.quantities[currentSize] || 0
-    
+
     if (currentStockAvailable === 0) {
       // Remove item from cart if size is no longer available
       cartStore.value.removeFromCart(itemId, currentSize)
@@ -486,7 +438,7 @@ const updateSize = async (itemId: number, oldSize: string, newSize: string) => {
     // Get latest product details from API
     const response = await api.get<ProductDetails>(`/products/${itemId}`)
     const product = response.data
-    
+
     // Update our local state
     updateProductDetails(itemId, product)
 
@@ -502,10 +454,10 @@ const updateSize = async (itemId: number, oldSize: string, newSize: string) => {
 
     // Remove item with old size
     cartStore.value.removeFromCart(itemId, oldSize)
-    
+
     // Add item with new size and quantity 1
-    const newItem = { 
-      ...currentItem, 
+    const newItem = {
+      ...currentItem,
       size: newSize,
       quantity: 1
     }
@@ -522,7 +474,7 @@ const subtotal = computed(() => {
 
 const updateQuantity = (itemId: number, size: string, quantity: number) => {
   if (!cartStore.value?.items) return
-  
+
   const availableQuantity = getAvailableQuantity(itemId, size)
   if (quantity >= 1 && quantity <= availableQuantity) {
     cartStore.value.updateQuantity(itemId, size, quantity)
@@ -538,23 +490,23 @@ const removeFromCart = (itemId: number, size: string) => {
 
 const validateQuantity = async (item: CartItem) => {
   if (!cartStore.value?.items) return
-  
+
   try {
     // Get latest product details from API
     const response = await api.get<ProductDetails>(`/products/${item.id}`)
     const product = response.data
-    
+
     // Update our local state
     updateProductDetails(item.id, product)
 
     const availableQuantity = product.quantities[item.size] || 0
-    
+
     if (item.quantity < 1) {
       item.quantity = 1
     } else if (item.quantity > availableQuantity) {
       item.quantity = availableQuantity
     }
-    
+
     item.quantity = Math.floor(item.quantity)
     cartStore.value.updateQuantity(item.id, item.size, item.quantity)
   } catch (error) {
@@ -584,7 +536,7 @@ const shipping = computed(() => {
   if (!isAddressComplete.value || (address.value.latitude === 0 && address.value.longitude === 0)) {
     return 0
   }
-  
+
   // Calculate distance-based multiplier
   const distance = calculateDistance(
     address.value.latitude,
@@ -592,7 +544,7 @@ const shipping = computed(() => {
     -23.5505, // São Paulo latitude
     -46.6333  // São Paulo longitude
   )
-  
+
   // Increase shipping cost by 10% for each 100km
   const multiplier = 1 + (Math.floor(distance / 100) * 0.1)
   return baseShippingCost.value * multiplier
@@ -605,36 +557,36 @@ const total = computed(() => {
 
 const isAddressComplete = computed(() => {
   return address.value.zipCode &&
-         address.value.street &&
-         address.value.number &&
-         address.value.neighborhood &&
-         address.value.city &&
-         address.value.state
+    address.value.street &&
+    address.value.number &&
+    address.value.neighborhood &&
+    address.value.city &&
+    address.value.state
 })
 
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 6371 // Earth's radius in kilometers
   const dLat = (lat2 - lat1) * Math.PI / 180
   const dLon = (lon2 - lon1) * Math.PI / 180
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
   return R * c // Distance in kilometers
 }
 
 const searchCEP = async () => {
   const cep = address.value.zipCode.replace(/\D/g, '')
-  
+
   if (cep.length !== 8) return
-  
+
   loadingAddress.value = true
-  
+
   try {
     const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
     const data = await response.json()
-    
+
     if (!data.erro) {
       address.value.street = data.logradouro
       address.value.neighborhood = data.bairro
@@ -646,7 +598,7 @@ const searchCEP = async () => {
         `https://nominatim.openstreetmap.org/search?street=${encodeURIComponent(data.logradouro)}&city=${encodeURIComponent(data.localidade)}&state=${data.uf}&country=Brazil&format=json`
       )
       const geocodeData = await geocodeResponse.json()
-      
+
       if (geocodeData.length > 0) {
         address.value.latitude = parseFloat(geocodeData[0].lat)
         address.value.longitude = parseFloat(geocodeData[0].lon)
@@ -697,7 +649,7 @@ const formatCardNumber = (event: Event) => {
 
 const validateCardNumber = () => {
   const number = payment.value.cardNumber.replace(/\s/g, '')
-  
+
   // Luhn Algorithm
   const isValid = number.split('')
     .reverse()
@@ -719,7 +671,7 @@ const validateCardNumber = () => {
 
 const validateCardName = () => {
   const name = payment.value.cardName.trim()
-  
+
   if (!name) {
     cardErrors.value.name = 'Nome é obrigatório'
   } else if (name.length < 3) {
@@ -756,7 +708,7 @@ const validateExpiryDate = () => {
 
 const validateCVV = () => {
   const cvv = payment.value.cvv
-  
+
   if (!cvv) {
     cardErrors.value.cvv = 'CVV é obrigatório'
   } else if (cvv.length < 3) {
@@ -774,10 +726,10 @@ const validateAllCardFields = (): boolean => {
   validateExpiryDate()
   validateCVV()
 
-  return !cardErrors.value.number && 
-         !cardErrors.value.name && 
-         !cardErrors.value.expiry && 
-         !cardErrors.value.cvv
+  return !cardErrors.value.number &&
+    !cardErrors.value.name &&
+    !cardErrors.value.expiry &&
+    !cardErrors.value.cvv
 }
 
 const formatExpiryDate = (event: Event) => {
@@ -804,6 +756,10 @@ const generateBoleto = () => {
   // Aqui você implementaria a geração do boleto
 }
 
+const continueShopping = () => {
+  router.push('/products')
+}
+
 const validateAllFields = (): boolean => {
   if (payment.value.method === 'credit') {
     return validateAllCardFields()
@@ -811,22 +767,73 @@ const validateAllFields = (): boolean => {
   return true
 }
 
-const finishOrder = () => {
+const finishOrder = async () => {
   if (!validateAllFields()) {
     return
   }
 
-  // In a real app, this would submit the order
-  console.log('Finishing order with:', {
-    item: cartStore.value.items,
-    address: address.value,
-    payment: payment.value
-  })
+  try {
+    const cartItems = cartStore.value?.items || []
+    const user = authStore.currentUser
+
+    if (!cartItems.length) {
+      toastMessage.value = 'Carrinho vazio!'
+      showToast.value = true
+      return
+    }
+
+    if (!user || !user.id) {
+      toastMessage.value = 'Usuário não autenticado!'
+      showToast.value = true
+      router.push('/login')
+      return
+    }
+
+    localStorage.setItem('type_payment', payment.value.method)
+
+    const response = await api.post('/products/buy', {
+      user,
+      products: cartItems.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        size: item.size,
+        quantity: item.quantity,
+        image: item.image
+      })),
+      payment_type: payment.value.method
+    })
+
+    console.log('Pedido finalizado com sucesso:', response.data)
+    toastMessage.value = 'Pedido finalizado com sucesso!'
+    showToast.value = true
+
+    localStorage.removeItem('cart')
+    localStorage.removeItem('type_payment')
+    setTimeout(() => {
+      router.push('/orders')
+    }, 2000)
+
+  } catch (error) {
+    console.error('Erro ao finalizar pedido:', error)
+    toastMessage.value = 'Erro ao finalizar pedido. Tente novamente.'
+    showToast.value = true
+  }
 }
 
-const continueShopping = () => {
-  router.push('/products')
-}
+watch(address, (newAddress) => {
+  let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  user.cep = newAddress.zipCode;
+  user.street = newAddress.street;
+  user.number = newAddress.number;
+  user.neighborhood = newAddress.neighborhood;
+  user.city = newAddress.city;
+  user.state = newAddress.state;
+  localStorage.setItem('user', JSON.stringify(user));
+}, { deep: true, immediate: false });
+
+
 </script>
 
 <style module>
@@ -2011,6 +2018,7 @@ const continueShopping = () => {
     transform: translate(-50%, -100%);
     opacity: 0;
   }
+
   to {
     transform: translate(-50%, 0);
     opacity: 1;

@@ -8,6 +8,7 @@ export interface Product {
     color: string
     gender: string
     category: string
+    picture?: string
 }
 
 // Helper interface for display purposes

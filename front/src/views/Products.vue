@@ -19,27 +19,15 @@
           <section :class="$style.group">
             <div :class="$style.head" @click="toggleSection('categories')">
               <span :class="$style.title">CATEGORIAS</span>
-              <img
-                :class="$style.icon"
-                alt="seta"
-                src="@/assets/keyboard_arrow_up.svg"
-                :style="{ transform: sectionsOpen.categories ? 'rotate(0deg)' : 'rotate(180deg)' }"
-              />
+              <img :class="$style.icon" alt="seta" src="@/assets/keyboard_arrow_up.svg"
+                :style="{ transform: sectionsOpen.categories ? 'rotate(0deg)' : 'rotate(180deg)' }" />
             </div>
             <div v-show="sectionsOpen.categories" :class="$style.options">
-              <div
-                v-for="item in ['Roupas','Sapatos','Acessórios']"
-                :key="item"
-                :class="$style.option"
-                @click="selectFilter('category', item)"
-              >
-                <img
-                  :src="selectedFilters.category.includes(item)
-                    ? radioButtonChecked
-                    : radioButtonUnchecked"
-                  :class="$style.radio"
-                  alt="radio"
-                />
+              <div v-for="item in ['Roupas', 'Sapatos', 'Acessórios']" :key="item" :class="$style.option"
+                @click="selectFilter('category', item)">
+                <img :src="selectedFilters.category.includes(item)
+                  ? radioButtonChecked
+                  : radioButtonUnchecked" :class="$style.radio" alt="radio" />
                 <span :class="$style.label">{{ item }}</span>
               </div>
             </div>
@@ -48,27 +36,15 @@
           <section :class="$style.group">
             <div :class="$style.head" @click="toggleSection('gender')">
               <span :class="$style.title">GÊNERO</span>
-              <img
-                :class="$style.icon"
-                alt="seta"
-                src="@/assets/keyboard_arrow_up.svg"
-                :style="{ transform: sectionsOpen.gender ? 'rotate(0deg)' : 'rotate(180deg)' }"
-              />
+              <img :class="$style.icon" alt="seta" src="@/assets/keyboard_arrow_up.svg"
+                :style="{ transform: sectionsOpen.gender ? 'rotate(0deg)' : 'rotate(180deg)' }" />
             </div>
             <div v-show="sectionsOpen.gender" :class="$style.options">
-              <div
-                v-for="item in ['Homem','Mulher','Unissex']"
-                :key="item"
-                :class="$style.option"
-                @click="selectFilter('gender', item)"
-              >
-                <img
-                  :src="selectedFilters.gender.includes(item)
-                    ? radioButtonChecked
-                    : radioButtonUnchecked"
-                  :class="$style.radio"
-                  alt="radio"
-                />
+              <div v-for="item in ['Homem', 'Mulher', 'Unissex']" :key="item" :class="$style.option"
+                @click="selectFilter('gender', item)">
+                <img :src="selectedFilters.gender.includes(item)
+                  ? radioButtonChecked
+                  : radioButtonUnchecked" :class="$style.radio" alt="radio" />
                 <span :class="$style.label">{{ item }}</span>
               </div>
             </div>
@@ -77,25 +53,13 @@
           <section :class="$style.group">
             <div :class="$style.head" @click="toggleSection('colors')">
               <span :class="$style.title">CORES</span>
-              <img
-                :class="$style.icon"
-                alt="seta"
-                src="@/assets/keyboard_arrow_up.svg"
-                :style="{ transform: sectionsOpen.colors ? 'rotate(0deg)' : 'rotate(180deg)' }"
-              />
+              <img :class="$style.icon" alt="seta" src="@/assets/keyboard_arrow_up.svg"
+                :style="{ transform: sectionsOpen.colors ? 'rotate(0deg)' : 'rotate(180deg)' }" />
             </div>
             <div v-show="sectionsOpen.colors" :class="$style.colors">
-              <div
-                v-for="cor in ['#000','#ccc','#fff','#383873','#ac4f4f','#fffd8b','#cd57c1']"
-                :key="cor"
-                :class="$style.colorCircle"
-                :style="{ backgroundColor: cor }"
-                @click="selectFilter('color', cor)"
-              >
-                <div
-                  v-if="selectedFilters.color.includes(cor)"
-                  :class="$style.colorSelected"
-                />
+              <div v-for="cor in ['#000', '#ccc', '#fff', '#383873', '#ac4f4f', '#fffd8b', '#cd57c1']" :key="cor"
+                :class="$style.colorCircle" :style="{ backgroundColor: cor }" @click="selectFilter('color', cor)">
+                <div v-if="selectedFilters.color.includes(cor)" :class="$style.colorSelected" />
               </div>
             </div>
           </section>
@@ -103,20 +67,13 @@
           <section :class="$style.group">
             <div :class="$style.head" @click="toggleSection('sizes')">
               <span :class="$style.title">TAMANHOS</span>
-              <img
-                :class="$style.icon"
-                alt="seta"
-                src="@/assets/keyboard_arrow_up.svg"
-                :style="{ transform: sectionsOpen.sizes ? 'rotate(0deg)' : 'rotate(180deg)' }"
-              />
+              <img :class="$style.icon" alt="seta" src="@/assets/keyboard_arrow_up.svg"
+                :style="{ transform: sectionsOpen.sizes ? 'rotate(0deg)' : 'rotate(180deg)' }" />
             </div>
             <div v-show="sectionsOpen.sizes" :class="$style.sizes">
-              <div
-                v-for="size in ['P','M','G','GG']"
-                :key="size"
+              <div v-for="size in ['P', 'M', 'G', 'GG']" :key="size"
                 :class="[$style.sizeBox, { [$style.selected]: selectedFilters.size.includes(size) }]"
-                @click="selectFilter('size', size)"
-              >
+                @click="selectFilter('size', size)">
                 {{ size }}
               </div>
             </div>
@@ -125,12 +82,8 @@
           <section :class="$style.group">
             <div :class="$style.head" @click="toggleSection('prices')">
               <span :class="$style.title">PREÇOS</span>
-              <img
-                :class="$style.icon"
-                alt="seta"
-                src="@/assets/keyboard_arrow_up.svg"
-                :style="{ transform: sectionsOpen.prices ? 'rotate(0deg)' : 'rotate(180deg)' }"
-              />
+              <img :class="$style.icon" alt="seta" src="@/assets/keyboard_arrow_up.svg"
+                :style="{ transform: sectionsOpen.prices ? 'rotate(0deg)' : 'rotate(180deg)' }" />
             </div>
             <div v-show="sectionsOpen.prices" :class="$style.priceSection">
               <div :class="$style.faixaDeValor">
@@ -159,20 +112,10 @@
                 </div>
               </div>
               <div :class="$style.rangeWrapper">
-                <input
-                  type="range"
-                  v-model.number="priceRange.min"
-                  :min="dynamicPriceRange.min"
-                  :max="dynamicPriceRange.max"
-                  @input="validatePriceRange('min')"
-                />
-                <input
-                  type="range"
-                  v-model.number="priceRange.max"
-                  :min="dynamicPriceRange.min"
-                  :max="dynamicPriceRange.max"
-                  @input="validatePriceRange('max')"
-                />
+                <input type="range" v-model.number="priceRange.min" :min="dynamicPriceRange.min"
+                  :max="dynamicPriceRange.max" @input="validatePriceRange('min')" />
+                <input type="range" v-model.number="priceRange.max" :min="dynamicPriceRange.min"
+                  :max="dynamicPriceRange.max" @input="validatePriceRange('max')" />
               </div>
             </div>
           </section>
@@ -186,12 +129,7 @@
       <div class="products">
         <div class="products-header">
           <div class="search-container">
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              placeholder="Buscar produtos..." 
-              class="search-input"
-            />
+            <input v-model="searchQuery" type="text" placeholder="Buscar produtos..." class="search-input" />
             <img src="@/assets/search.svg" alt="Buscar" class="search-icon" />
           </div>
 
@@ -201,16 +139,10 @@
             </div>
 
             <div class="view-toggle">
-              <button 
-                :class="['view-btn', { active: viewMode === 'grid' }]"
-                @click="viewMode = 'grid'"
-              >
+              <button :class="['view-btn', { active: viewMode === 'grid' }]" @click="viewMode = 'grid'">
                 <img src="@/assets/grid_view.svg" alt="Grid" />
               </button>
-              <button 
-                :class="['view-btn', { active: viewMode === 'list' }]"
-                @click="viewMode = 'list'"
-              >
+              <button :class="['view-btn', { active: viewMode === 'list' }]" @click="viewMode = 'list'">
                 <img src="@/assets/list_view.svg" alt="List" />
               </button>
             </div>
@@ -219,23 +151,15 @@
               <img class="keyboard-arrow-up-icon" alt="" src="@/assets/swap_vert.svg" />
               <div class="ordenar-por">Ordenar por:</div>
               <div class="filtro">
-                <div class="roupas">{{ sortOptions.find(opt => opt.value === selectedSort)?.label }}</div>
-                <img 
-                  class="keyboard-arrow-up-icon" 
-                  alt="" 
-                  src="@/assets/keyboard_arrow_down.svg"
-                  :style="{ transform: showSortDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }"
-                />
+                <div class="roupas">{{sortOptions.find(opt => opt.value === selectedSort)?.label}}</div>
+                <img class="keyboard-arrow-up-icon" alt="" src="@/assets/keyboard_arrow_down.svg"
+                  :style="{ transform: showSortDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }" />
               </div>
-              
+
               <div v-if="showSortDropdown" class="sort-dropdown">
-                <div 
-                  v-for="option in sortOptions" 
-                  :key="option.value"
-                  class="sort-option"
+                <div v-for="option in sortOptions" :key="option.value" class="sort-option"
                   :class="{ active: selectedSort === option.value }"
-                  @click.stop="selectedSort = option.value; showSortDropdown = false"
-                >
+                  @click.stop="selectedSort = option.value; showSortDropdown = false">
                   {{ option.label }}
                 </div>
               </div>
@@ -253,35 +177,14 @@
             <p>Nenhum produto encontrado</p>
             <button @click="clearFilters" class="clear-filters-btn">Limpar Filtros</button>
           </div>
-          <transition-group
-            name="product-list"
-            tag="div"
-            class="products-grid"
-          >
-            <div 
-              v-for="product in paginatedProducts" 
-              :key="product.id"
-              :class="$style.produto01"
-            >
+          <transition-group name="product-list" tag="div" class="products-grid">
+            <div v-for="product in paginatedProducts" :key="product.id" :class="$style.produto01">
               <div :class="$style.imageWrapper">
-                <img
-                  :class="$style.fotoIcon"
-                  :alt="product.name"
-                  :src="product.images[0]"
-                />
-                <button 
-                  :class="$style.favoriteBtn"
-                  @click="toggleFavorite(product.id)"
-                >
-                  <img 
-                    :src="isFavorite(product.id) ? favoriteIconFilled : favoriteIcon" 
-                    alt="Favoritar" 
-                  />
+                <img :class="$style.fotoIcon" :alt="product.name" :src="product.images[0]" />
+                <button v-if="isUserLoggedIn" :class="$style.favoriteBtn" @click="toggleFavorite(product.id)">
+                  <img :src="isFavorite(product.id) ? favoriteIconFilled : favoriteIcon" alt="Favoritar" />
                 </button>
-                <button 
-                  :class="$style.addBtn"
-                  @click="addToCart(product)"
-                >
+                <button v-if="isUserLoggedIn" :class="$style.addBtn" @click="addToCart(product)">
                   <img :src="addIcon" alt="Adicionar" />
                 </button>
               </div>
@@ -293,11 +196,8 @@
                 <div :class="$style.row">
                   <span :class="$style.stock">{{ product.stock }} em estoque</span>
                   <div :class="$style.sizeList">
-                    <span 
-                      v-for="sizeDetail in product.sizeDetails" 
-                      :key="sizeDetail.size"
-                      :class="[!sizeDetail.available ? $style.unavailable : '']"
-                    >
+                    <span v-for="sizeDetail in product.sizeDetails" :key="sizeDetail.size"
+                      :class="[!sizeDetail.available ? $style.unavailable : '']">
                       {{ sizeDetail.size }}
                     </span>
                   </div>
@@ -310,7 +210,8 @@
         <div v-if="currentPage < totalPages" class="button">
           <button class="v-btn1" @click="loadMore">
             <div class="content">
-              <div class="text5">CARREGAR MAIS ({{ filteredProducts.length - paginatedProducts.length }} restantes)</div>
+              <div class="text5">CARREGAR MAIS ({{ filteredProducts.length - paginatedProducts.length }} restantes)
+              </div>
             </div>
           </button>
         </div>
@@ -332,6 +233,7 @@ import { storeToRefs } from 'pinia'
 import api from '../services/api'
 import type { Product, DisplayProduct } from '../types/product'
 import { useCartStore } from '@/stores/cart'
+import { useFavoritesStore } from '@/stores/favorites'
 import type { CartItem } from '@/stores/cart'
 
 import addIcon from '../assets/cards/add.svg'
@@ -361,6 +263,7 @@ const selectedFilters = ref({
 const rawProducts = ref<Product[]>([])
 const loading = ref(true)
 const cart = ref<ReturnType<typeof useCartStore> | null>(null)
+const favoritesStore = useFavoritesStore()
 
 const priceRange = ref({
   min: 0,
@@ -371,18 +274,18 @@ const dynamicPriceRange = computed(() => {
   if (rawProducts.value.length === 0) {
     return { min: 0, max: 1000 }
   }
-  
+
   const prices = rawProducts.value.map(product => product.price)
   const minPrice = Math.floor(Math.min(...prices))
   const maxPrice = Math.ceil(Math.max(...prices))
-  
+
   return { min: minPrice, max: maxPrice }
 })
 
 const products = computed<DisplayProduct[]>(() => {
   return rawProducts.value.map((product: Product) => {
     const totalStock = Object.values(product.quantities).reduce((sum: number, qty: number) => sum + qty, 0)
-    
+
     const allSizes = ['P', 'M', 'G', 'GG']
     const availableSizes = allSizes.map(size => ({
       size,
@@ -390,12 +293,17 @@ const products = computed<DisplayProduct[]>(() => {
       available: (product.quantities[size] || 0) > 0
     }))
 
+    const fallbackImage = 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748493239/file_pdysef.png'
+    const productImage = product.picture && product.picture.trim() !== '' ? product.picture : fallbackImage
+
+    console.log('productImage', product.picture)
+
     return {
       id: product.id,
       name: product.title,
       description: `${product.category} - ${product.color}`,
       price: product.price,
-      images: [vezzLogo],
+      images: [productImage],
       sizes: Object.keys(product.quantities),
       stock: totalStock,
       category: product.category,
@@ -422,7 +330,7 @@ const searchQuery = ref('')
 
 const categoryMapping: { [key: string]: string } = {
   'Roupas': 'clothes',
-  'Sapatos': 'shoes', 
+  'Sapatos': 'shoes',
   'Acessórios': 'accessories'
 }
 
@@ -437,7 +345,7 @@ const filteredProducts = computed(() => {
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(product => 
+    filtered = filtered.filter(product =>
       product.name.toLowerCase().includes(query) ||
       product.description.toLowerCase().includes(query)
     )
@@ -458,20 +366,20 @@ const filteredProducts = computed(() => {
   }
 
   if (selectedFilters.value.color.length > 0) {
-    filtered = filtered.filter(product => 
+    filtered = filtered.filter(product =>
       selectedFilters.value.color.includes(product.color.toLowerCase())
     )
   }
 
   if (selectedFilters.value.size.length > 0) {
-    filtered = filtered.filter(product => 
-      selectedFilters.value.size.some(size => 
+    filtered = filtered.filter(product =>
+      selectedFilters.value.size.some(size =>
         product.sizeDetails.find(s => s.size === size && s.available)
       )
     )
   }
 
-  filtered = filtered.filter(product => 
+  filtered = filtered.filter(product =>
     product.price >= priceRange.value.min && product.price <= priceRange.value.max
   )
 
@@ -514,18 +422,11 @@ const loadMore = () => {
 
 const viewMode = ref<'grid' | 'list'>('grid')
 
-const favorites = ref<number[]>([])
-
 const toggleFavorite = (productId: number) => {
-  const index = favorites.value.indexOf(productId)
-  if (index === -1) {
-    favorites.value.push(productId)
-  } else {
-    favorites.value.splice(index, 1)
-  }
+  favoritesStore.addToFavorites(productId)
 }
 
-const isFavorite = (productId: number) => favorites.value.includes(productId)
+const isFavorite = (productId: number) => favoritesStore.isFavorite(productId)
 
 const showToast = (message: string) => {
   toastMessage.value = message
@@ -546,7 +447,7 @@ const selectFilter = (type: keyof typeof selectedFilters.value, value: string) =
   } else {
     selectedFilters.value[type].splice(index, 1)
   }
-  
+
   currentPage.value = 1
 }
 
@@ -565,7 +466,7 @@ const clearFilters = () => {
     color: [],
     size: []
   }
-  
+
   const range = dynamicPriceRange.value
   priceRange.value = {
     min: range.min,
@@ -582,7 +483,7 @@ const calculatePosition = (value: number) => {
 const updateSliderStyle = () => {
   const minPos = calculatePosition(priceRange.value.min)
   const maxPos = calculatePosition(priceRange.value.max)
-  
+
   return {
     left: `${minPos}%`,
     right: `${100 - maxPos}%`
@@ -594,7 +495,7 @@ const fetchProducts = async () => {
     loading.value = true
     const response = await api.get('/products')
     rawProducts.value = response.data
-    
+
     const range = dynamicPriceRange.value
     priceRange.value = {
       min: range.min,
@@ -640,7 +541,7 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
     const totalRange = dynamicPriceRange.value.max - dynamicPriceRange.value.min;
     const leftPercent = ((priceRange.value.min - dynamicPriceRange.value.min) / totalRange) * 100;
     const rightPercent = ((dynamicPriceRange.value.max - priceRange.value.max) / totalRange) * 100;
-    
+
     rangeWrapper.style.setProperty('--left-percent', `${leftPercent}%`);
     rangeWrapper.style.setProperty('--right-percent', `${rightPercent}%`);
   }
@@ -658,8 +559,8 @@ const addToCart = (product: DisplayProduct) => {
       showToast('Produto indisponível')
       return
     }
-    
-    cart.value.addToCart({
+
+    const success = cart.value.addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
@@ -667,7 +568,10 @@ const addToCart = (product: DisplayProduct) => {
       quantity: 1,
       image: product.images[0]
     })
-    showToast('Produto adicionado ao carrinho!')
+    
+    if (success) {
+      showToast('Produto adicionado ao carrinho!')
+    }
   } catch (error) {
     console.error('Failed to add to cart:', error)
     showToast('Erro ao adicionar ao carrinho')
@@ -676,6 +580,10 @@ const addToCart = (product: DisplayProduct) => {
 
 const toastMessage = ref('')
 const showToastFlag = ref(false)
+
+const isUserLoggedIn = computed(() => {
+  return !!localStorage.getItem('user')
+})
 </script>
 
 <style scoped>
@@ -947,7 +855,7 @@ const showToastFlag = ref(false)
   padding: 16px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .cards.list :deep(.imageWrapper) {
@@ -1052,8 +960,13 @@ const showToastFlag = ref(false)
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .toast {
@@ -1123,13 +1036,17 @@ const showToastFlag = ref(false)
   --heart-color: #ff4444;
 }
 
-.filtros { 
-  width: 280px; 
+.filtros {
+  width: 280px;
   color: #555;
   transition: width 0.3s ease;
 }
 
-.contents { display: flex; flex-direction: column; gap: 32px }
+.contents {
+  display: flex;
+  flex-direction: column;
+  gap: 32px
+}
 
 .head {
   display: flex;
@@ -1161,7 +1078,10 @@ const showToastFlag = ref(false)
   display: none;
 }
 
-.options { margin-top: 8px }
+.options {
+  margin-top: 8px
+}
+
 .option {
   display: flex;
   align-items: center;
@@ -1171,12 +1091,18 @@ const showToastFlag = ref(false)
   cursor: pointer;
   transition: color 0.3s;
 }
-.option:hover { 
+
+.option:hover {
   color: var(--text-color);
 }
-.radio { width: 16px }
 
-.label { font-size: 14px }
+.radio {
+  width: 16px
+}
+
+.label {
+  font-size: 14px
+}
 
 .colors {
   display: flex;
@@ -1184,6 +1110,7 @@ const showToastFlag = ref(false)
   margin-top: 8px;
   justify-content: space-between;
 }
+
 .colorCircle {
   width: 24px;
   height: 24px;
@@ -1192,6 +1119,7 @@ const showToastFlag = ref(false)
   cursor: pointer;
   border: 1px solid #ddd;
 }
+
 .colorSelected {
   position: absolute;
   top: 50%;
@@ -1210,6 +1138,7 @@ const showToastFlag = ref(false)
   margin-top: 8px;
   justify-content: space-between;
 }
+
 .sizeBox {
   padding: 8px 16px;
   border: 1px solid #ddd;
@@ -1220,6 +1149,7 @@ const showToastFlag = ref(false)
   user-select: none;
   transition: all 0.2s ease;
 }
+
 .sizeBox:hover,
 .selected {
   border-color: #000;
@@ -1392,8 +1322,10 @@ const showToastFlag = ref(false)
 
 .fotoIcon {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -1401,7 +1333,8 @@ const showToastFlag = ref(false)
 .addBtn {
   position: absolute;
   bottom: 8px;
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 50%;
@@ -1412,12 +1345,15 @@ const showToastFlag = ref(false)
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.3s, border-color 0.3s;
 }
-.favoriteBtn { 
+
+.favoriteBtn {
   left: 8px;
 }
-.addBtn { 
+
+.addBtn {
   right: 8px;
 }
+
 .favoriteBtn:hover,
 .addBtn:hover {
   transform: scale(1.1);
@@ -1546,7 +1482,8 @@ const showToastFlag = ref(false)
   border-radius: 4px;
   cursor: pointer;
 }
-.clearBtn:hover { 
+
+.clearBtn:hover {
   background: #333;
 }
 </style>
@@ -1678,6 +1615,7 @@ const showToastFlag = ref(false)
 
 /* Ajustes para os botões de ação em telas pequenas */
 @media (max-width: 640px) {
+
   .favoriteBtn,
   .addBtn {
     width: 32px;
@@ -1724,8 +1662,8 @@ const showToastFlag = ref(false)
 }
 
 /* Ajustes responsivos para os elementos do módulo */
-.filtros { 
-  width: 280px; 
+.filtros {
+  width: 280px;
   color: #555;
   transition: width 0.3s ease;
 }

@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import { useAuthStore } from './auth'
+import { useToast } from 'vue-toastification'
 
 export interface CartItem {
     id: number
@@ -20,6 +22,15 @@ export const useCartStore = defineStore('cart', {
 
     actions: {
         addToCart(item: CartItem) {
+            const authStore = useAuthStore()
+            const toast = useToast()
+
+            // Check if user is logged in
+            if (!authStore.isLoggedIn) {
+                toast.error('Você precisa estar logado para adicionar produtos ao carrinho')
+                return false
+            }
+
             const existingItem = this.items.find((i: CartItem) => i.id === item.id && i.size === item.size)
 
             if (existingItem) {
@@ -29,6 +40,7 @@ export const useCartStore = defineStore('cart', {
             }
             // Save to localStorage
             this.saveCart()
+            return true
         },
 
         removeFromCart(itemId: number, size: string) {
