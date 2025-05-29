@@ -11,12 +11,19 @@
               <div :class="$style.profile">
                 <div :class="$style.body1">
                   <div :class="$style.photoWrapper">
+                    <!-- Loading state -->
+                    <div v-if="isLoadingPhoto" :class="$style.photoPlaceholder">
+                      <span>Carregando...</span>
+                    </div>
+                    <!-- Photo if available -->
                     <img 
-                      v-if="userPhoto" 
+                      v-else-if="userPhoto" 
                       :src="userPhoto" 
                       :class="$style.photoIcon" 
-                      alt="Foto do perfil" 
+                      alt="Foto do perfil"
+                      @error="handleImageError"
                     />
+                    <!-- No photo placeholder -->
                     <div v-else :class="$style.photoPlaceholder">
                       <span>Sem foto</span>
                     </div>
@@ -223,14 +230,27 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useDarkModeStore } from '@/stores/darkMode'
+import { useToast } from 'vue-toastification'
+import { useAuthStore } from '@/stores/auth'
 import NavBar from '@/components/NavBar.vue'
+
+interface User {
+  id: number
+  name: string
+  email: string
+  photo?: string
+}
 
 const router = useRouter()
 const userStore = useUserStore()
 const darkModeStore = useDarkModeStore()
+const authStore = useAuthStore()
+const toast = useToast()
 
 const fileInput = ref<HTMLInputElement>()
 const userPhoto = ref<string>('')
+const selectedFile = ref<File | null>(null)
+const isLoadingPhoto = ref(true)
 
 const formData = reactive({
   username: '',
@@ -248,18 +268,100 @@ const editMode = reactive({
   location: false
 })
 
-onMounted(() => {
-  // Load user data from store
-  if (userStore.user) {
-    formData.username = userStore.user.name || ''
-    formData.email = userStore.user.email || ''
-    // Don't load password for security
-    formData.street = userStore.user.street || ''
-    formData.neighborhood = userStore.user.neighborhood || ''
-    formData.city = userStore.user.city || ''
-    formData.state = userStore.user.state || ''
-    formData.cep = userStore.user.cep || ''
-    userPhoto.value = userStore.user.photo || ''
+async function loadUserPhoto(userId: number) {
+  try {
+    console.log('Starting to load user photo for userId:', userId)
+    const response = await fetch(`http://localhost:3003/users/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      },
+      credentials: 'include'
+    })
+
+    if (!response.ok) {
+      throw new Error('Erro ao carregar foto do perfil')
+    }
+
+    const userData = await response.json()
+    console.log('Received user data:', userData)
+    
+    if (userData.picture) {
+      console.log('Found photo in user data:', userData.picture)
+      // If the photo is a full URL, use it directly
+      if (userData.picture.startsWith('http')) {
+        console.log('Using full URL for photo')
+        userPhoto.value = userData.picture
+      } else {
+        // Otherwise, construct the full URL
+        console.log('Constructing URL for photo')
+        userPhoto.value = `http://localhost:3003/${userData.picture.replace(/^\//, '')}`
+      }
+      console.log('Final photo URL:', userPhoto.value)
+    } else {
+      console.log('No photo found in user data')
+      userPhoto.value = ''
+    }
+  } catch (error) {
+    console.error('Error loading user photo:', error)
+    userPhoto.value = ''
+  } finally {
+    console.log('Photo loading completed. Current userPhoto value:', userPhoto.value)
+    isLoadingPhoto.value = false
+  }
+}
+
+onMounted(async () => {
+  try {
+    console.log('Component mounted, initializing auth store')
+    authStore.init()
+    
+    const userId = authStore.user?.id
+    console.log('Current user ID:', userId)
+    
+    if (!userId) {
+      toast.error('Usuário não encontrado')
+      router.push('/')
+      return
+    }
+
+    // Load user photo first
+    console.log('Starting photo load process')
+    await loadUserPhoto(userId)
+
+    // Fetch user data from backend
+    const response = await fetch(`http://localhost:3003/users/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      },
+      credentials: 'include'
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Erro ao carregar dados do usuário')
+    }
+
+    const userData = await response.json()
+    console.log('Loaded full user data:', userData)
+
+    // Update form data with user data from backend
+    formData.username = userData.name || ''
+    formData.email = userData.email || ''
+    // Don't set password for security
+    formData.street = userData.street || ''
+    formData.neighborhood = userData.neighborhood || ''
+    formData.city = userData.city || ''
+    formData.state = userData.state || ''
+    formData.cep = userData.cep || ''
+
+    // Update user store with fresh data
+    userStore.updateUser(userData)
+
+  } catch (error: any) {
+    console.error('Error in onMounted:', error)
+    toast.error(error.message || 'Erro ao carregar dados do perfil')
   }
 })
 
@@ -271,14 +373,27 @@ function handleChangePhoto() {
   fileInput.value?.click()
 }
 
-function onPhotoChange(event: Event) {
+async function onPhotoChange(event: Event) {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   
   if (file) {
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('A imagem deve ter no máximo 5MB')
+      return
+    }
+
+    // Store the actual file for later use
+    selectedFile.value = file
+
+    // Preview the image
     const reader = new FileReader()
     reader.onload = (e) => {
       userPhoto.value = e.target?.result as string
+    }
+    reader.onerror = () => {
+      toast.error('Erro ao carregar a imagem')
     }
     reader.readAsDataURL(file)
   }
@@ -301,31 +416,94 @@ function handleCancel() {
 
 async function handleSave() {
   try {
-    // Here you would make an API call to save the user data
-    // For now, we'll just update the store
-    userStore.updateUser({
-      name: formData.username,
-      email: formData.email,
-      street: formData.street,
-      neighborhood: formData.neighborhood,
-      city: formData.city,
-      state: formData.state,
-      cep: formData.cep,
-      photo: userPhoto.value
+    const userId = authStore.user?.id
+    if (!userId) {
+      throw new Error('Usuário não encontrado')
+    }
+
+    // Create FormData instance
+    const formDataToSend = new FormData()
+
+    // Add the file first if it exists (using 'file' as the field name to match multer config)
+    if (selectedFile.value) {
+      formDataToSend.append('file', selectedFile.value)
+    }
+
+    // Add user data as a JSON string in a separate field
+    interface UserUpdateData {
+      name?: string
+      email?: string
+      password?: string
+      street?: string
+      neighborhood?: string
+      city?: string
+      state?: string
+      cep?: string
+      picture?: string
+    }
+
+    // Create userData object with only defined values
+    const userData: UserUpdateData = {}
+    
+    if (formData.username) userData.name = formData.username
+    if (formData.email) userData.email = formData.email
+    if (formData.password) userData.password = formData.password
+    if (formData.street) userData.street = formData.street
+    if (formData.neighborhood) userData.neighborhood = formData.neighborhood
+    if (formData.city) userData.city = formData.city
+    if (formData.state) userData.state = formData.state
+    if (formData.cep) userData.cep = formData.cep
+
+    // Add user data as a JSON string
+    formDataToSend.append('userData', JSON.stringify(userData))
+
+    console.log('Sending form data:', {
+      file: selectedFile.value?.name,
+      userData: userData
     })
+
+    // Make API call to update user
+    const response = await fetch(`http://localhost:3003/users/${userId}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      body: formDataToSend
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Erro ao atualizar perfil')
+    }
+
+    const updatedUser = await response.json()
+
+    // Update both stores with new user data
+    userStore.updateUser(updatedUser)
+    authStore.login(updatedUser)
 
     // Reset edit modes
     editMode.personal = false
     editMode.location = false
 
-    // Show success message (you can use a toast library)
-    alert('Perfil atualizado com sucesso!')
-    
+    toast.success('Perfil atualizado com sucesso!')
     router.push('/')
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error saving profile:', error)
-    alert('Erro ao salvar perfil. Tente novamente.')
+    toast.error(error.message || 'Erro ao atualizar perfil. Tente novamente.')
   }
+}
+
+// Update the image error handler with more debug info
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement
+  console.error('Image loading failed:', {
+    src: img.src,
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight,
+    complete: img.complete,
+    currentSrc: img.currentSrc
+  })
+  userPhoto.value = ''
+  toast.error('Erro ao carregar a imagem do perfil')
 }
 </script>
 
@@ -354,14 +532,14 @@ async function handleSave() {
   --card-bg: #1e1e1e;
   --text-primary: #ffffff;
   --text-secondary: #e0e0e0;
-  --text-disabled: #9e9e9e;
-  --border-color: #333333;
+  --text-disabled: #bdbdbd;
+  --border-color: #404040;
   --border-color-hover: #666666;
   --input-bg: #2d2d2d;
   --input-bg-disabled: #1a1a1a;
-  --divider-color: rgba(255, 255, 255, 0.12);
+  --divider-color: rgba(255, 255, 255, 0.15);
   --button-cancel-bg: #333333;
-  --button-cancel-color: #ff6b6b;
+  --button-cancel-color: #ff8080;
   --button-cancel-hover: #404040;
   --button-save-bg: #2baeff;
   --button-save-hover: #1a9eef;
@@ -529,7 +707,7 @@ async function handleSave() {
 .sectionTitle {
   font-size: 24px;
   font-weight: 500;
-  color: #212121;
+  color: var(--text-primary);
   letter-spacing: 1px;
 }
 
@@ -539,20 +717,20 @@ async function handleSave() {
   gap: 8px;
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid #d9d9d9;
-  background: white;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .edit:hover {
-  background-color: #f5f5f5;
-  border-color: #414141;
+  background-color: var(--input-bg);
+  border-color: var(--border-color-hover);
 }
 
 .editText {
   font-size: 16px;
-  color: #414141;
+  color: var(--text-secondary);
 }
 
 /* Form Inputs */
@@ -581,7 +759,7 @@ async function handleSave() {
 
 .labelText {
   font-size: 16px;
-  color: #414141;
+  color: var(--text-secondary);
   letter-spacing: 0.5px;
 }
 
@@ -590,10 +768,10 @@ async function handleSave() {
   height: 40px;
   padding: 12px 16px;
   border-radius: 8px;
-  border: 1px solid #d7d7d7;
+  border: 1px solid var(--border-color);
   font-size: 14px;
-  color: #414141;
-  background: white;
+  color: var(--text-primary);
+  background: var(--input-bg);
   transition: all 0.3s ease;
   font-family: 'Roboto', sans-serif;
 }
@@ -610,7 +788,7 @@ async function handleSave() {
 }
 
 .inputField::placeholder {
-  color: #757575;
+  color: var(--text-disabled);
 }
 
 /* Buttons */
@@ -619,7 +797,7 @@ async function handleSave() {
   gap: 16px;
   justify-content: flex-end;
   padding-top: 24px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-color);
 }
 
 .vBtn1, .vBtn2 {
@@ -683,5 +861,27 @@ async function handleSave() {
   .vBtn1, .vBtn2 {
     width: 100%;
   }
+}
+
+/* Add loading animation styles */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.photoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-disabled);
+  font-size: 14px;
+  background-color: var(--input-bg-disabled);
+}
+
+.photoPlaceholder span {
+  animation: pulse 1.5s infinite ease-in-out;
 }
 </style>

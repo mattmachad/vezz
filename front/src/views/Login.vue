@@ -100,19 +100,34 @@
   
       const data: LoginResponse = await response.json()
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Erro ao fazer login')
+      // Check if response is not ok or if data is invalid
+      if (!response.ok || !data.user || !data.user.id) {
+        throw new Error(data.message || 'Credenciais inválidas')
+      }
+  
+      // Validate user data
+      if (!data.user.email || !data.user.name) {
+        throw new Error('Dados do usuário inválidos')
       }
   
       // Store user data in auth store
       authStore.login(data.user)
       
       toast.success('Login realizado com sucesso!')
-      // Redirect to home page after successful login
-      router.push('/')
+      
+      // Check for redirect after login
+      const redirectPath = localStorage.getItem('redirectAfterLogin')
+      if (redirectPath) {
+        localStorage.removeItem('redirectAfterLogin')
+        router.push(redirectPath)
+      } else {
+        router.push('/')
+      }
     } catch (err: any) {
-      error.value = err.message
-      toast.error('Email ou senha incorretos')
+      error.value = err.message || 'Email ou senha incorretos'
+      toast.error(error.value)
+      // Clear auth store in case of error
+      authStore.logout()
     }
   }
   

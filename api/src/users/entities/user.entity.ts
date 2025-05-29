@@ -14,7 +14,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   cep: string;
 
   @Column({ nullable: true })
@@ -26,10 +26,10 @@ export class User {
   @Column({ nullable: true })
   state: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
-  @Column()
+  @Column({ nullable: true })
   is_admin: boolean;
 
   @Column({ nullable: true })

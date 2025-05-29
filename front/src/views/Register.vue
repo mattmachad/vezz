@@ -13,11 +13,13 @@
           <input v-model="form.nome" type="text" placeholder="Nome" required />
           <input v-model="form.email" type="email" placeholder="Email" required />
           <input v-model="form.senha" type="password" placeholder="Senha" required />
-          <button type="submit">CRIAR CONTA</button>
+          <button type="submit" :disabled="loading">
+            {{ loading ? 'CRIANDO...' : 'CRIAR CONTA' }}
+          </button>
         </form>
 
         <p class="login-link">
-          Já tem uma conta? <a href="/login">Faça login</a>
+          Já tem uma conta? <router-link to="/login">Faça login</router-link>
         </p>
       </div>
     </div>
@@ -34,9 +36,7 @@ const toast = useToast()
 const form = ref({
   nome: '',
   email: '',
-  senha: '',
-  cep: '',
-  phone: ''
+  senha: ''
 })
 const error = ref('')
 const loading = ref(false)
@@ -45,13 +45,29 @@ async function handleSubmit() {
   error.value = ''
   loading.value = true
   try {
-    // Monta o payload apenas com campos preenchidos
-    const payload: Record<string, string> = {}
-    if (form.value.nome) payload.name = form.value.nome
-    if (form.value.email) payload.email = form.value.email
-    if (form.value.senha) payload.password = form.value.senha
-    if (form.value.cep) payload.cep = form.value.cep
-    if (form.value.phone) payload.phone = form.value.phone
+    // Validar campos obrigatórios
+    if (!form.value.nome.trim()) {
+      throw new Error('Nome é obrigatório')
+    }
+    if (!form.value.email.trim()) {
+      throw new Error('Email é obrigatório')
+    }
+    if (!form.value.senha.trim() || form.value.senha.length < 6) {
+      throw new Error('Senha é obrigatória e deve ter pelo menos 6 caracteres')
+    }
+
+    // Monta o payload com campos obrigatórios
+    const payload = {
+      name: form.value.nome.trim(),
+      email: form.value.email.trim().toLowerCase(),
+      password: form.value.senha,
+      is_admin: false
+    }
+
+    console.log('Enviando dados para registro:', {
+      ...payload,
+      password: '[REDACTED]'
+    })
 
     const response = await fetch('http://localhost:3003/users', {
       method: 'POST',
@@ -64,6 +80,7 @@ async function handleSubmit() {
     })
 
     const data = await response.json()
+    console.log('Resposta do servidor:', data)
     
     if (!response.ok) {
       throw new Error(data.message || 'Erro ao registrar')
@@ -72,6 +89,7 @@ async function handleSubmit() {
     toast.success('Conta criada com sucesso!')
     router.push('/login')
   } catch (err: any) {
+    console.error('Erro detalhado:', err)
     error.value = err.message
     toast.error(error.value || 'Erro ao criar conta')
   } finally {
@@ -145,7 +163,12 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
   background-color: #333;
 }
 
@@ -159,7 +182,6 @@ button:hover {
   text-decoration: none;
   color: black;
   font-weight: bold;
-  
 }
 
 .arrow {
@@ -167,7 +189,5 @@ button:hover {
   margin-top: 3vh;
   width: 32px;
   height: 32px;
-
 }
-
 </style>

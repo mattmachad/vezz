@@ -56,7 +56,7 @@
                 Login
               </router-link>
               
-              <router-link v-if="isUserLoggedIn" to="/checkout" class="mobile-link" @click="closeMobileMenu">Sacola</router-link>
+              <router-link v-if="isUserLoggedIn" to="/checkout" class="mobile-link" @click="closeMobileMenu">Carrinho</router-link>
             </div>
           </nav>
         </div>
@@ -66,8 +66,9 @@
         <button class="dark-mode-btn" @click="toggleDarkMode">
           <img class="icon" :alt="darkModeStore.isDark ? 'Modo Claro' : 'Modo Escuro'" :src="darkModeIcon" />
         </button>
-        <router-link v-if="isUserLoggedIn" to="/wishlist">
+        <router-link v-if="isUserLoggedIn" to="/wishlist" class="wishlist-link">
           <img class="icon" alt="Favoritos" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" />
+          <span v-if="favoritesCount > 0" class="favorites-badge">{{ favoritesCount }}</span>
         </router-link>
         <div class="profile-container">
           <div class="auth-status">
@@ -118,6 +119,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useDarkModeStore } from '@/stores/darkMode'
 import { useAuthStore } from '@/stores/auth'
+import { useFavoritesStore } from '@/stores/favorites'
 import type { CartItem } from '@/stores/cart'
 import darkModeIconSrc from '@/assets/dark_mode.svg'
 import lightModeIconSrc from '@/assets/light_mode.svg'
@@ -135,12 +137,17 @@ const router = useRouter()
 const cartStore = ref(useCartStore())
 const darkModeStore = useDarkModeStore()
 const authStore = useAuthStore()
+const favoritesStore = useFavoritesStore()
 const showProfileMenu = ref(false)
 const showMobileProfileMenu = ref(false)
 
 const itemCount = computed(() => {
   if (!cartStore.value?.items) return 0
   return cartStore.value.items.reduce((total: number, item: CartItem) => total + item.quantity, 0)
+})
+
+const favoritesCount = computed(() => {
+  return favoritesStore.favorites.length
 })
 
 const darkModeIcon = computed(() => {
@@ -705,5 +712,28 @@ declare global {
   max-height: 0;
   opacity: 0;
   margin-top: 0;
+}
+
+.wishlist-link {
+  position: relative;
+  display: inline-block;
+}
+
+.favorites-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #439cd3;
+  color: white;
+  border-radius: 50%;
+  padding: 2px;
+  min-width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 </style>
