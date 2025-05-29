@@ -290,6 +290,8 @@ import NavBar from '@/components/NavBar.vue'
 import { useCartStore } from '@/stores/cart'
 import type { CartItem } from '@/stores/cart'
 import api from '@/services/api'
+import { watch } from 'vue'
+
 
 interface ProductDetails {
   quantities: {
@@ -770,6 +772,8 @@ const finishOrder = async () => {
       return
     }
 
+    localStorage.setItem('type_payment', payment.value.method)
+
     const response = await api.post('/products/buy', {
       user,
       products: cartItems.map((item: any) => ({
@@ -787,10 +791,10 @@ const finishOrder = async () => {
     toastMessage.value = 'Pedido finalizado com sucesso!'
     showToast.value = true
 
-    // Limpa o carrinho e redireciona
     localStorage.removeItem('cart')
+    localStorage.removeItem('type_payment')
     setTimeout(() => {
-      router.push('/orders') // ou qualquer rota de sucesso
+      router.push('/orders')
     }, 2000)
 
   } catch (error) {
@@ -800,10 +804,19 @@ const finishOrder = async () => {
   }
 }
 
+watch(address, (newAddress) => {
+  let user = JSON.parse(localStorage.getItem('user') || '{}');
 
-const continueShopping = () => {
-  router.push('/products')
-}
+  user.cep = newAddress.zipCode;
+  user.street = newAddress.street;
+  user.number = newAddress.number;
+  user.neighborhood = newAddress.neighborhood;
+  user.city = newAddress.city;
+  user.state = newAddress.state;
+  localStorage.setItem('user', JSON.stringify(user));
+}, { deep: true, immediate: false });
+
+
 </script>
 
 <style module>

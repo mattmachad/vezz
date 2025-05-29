@@ -11,7 +11,8 @@
         <router-link to="/about" class="nav-link" @click="closeMobileMenu">SOBRE</router-link>
       </nav>
 
-      <button class="hamburger" @click="toggleMobileMenu" aria-label="Abrir menu" v-show="isMobile && !isMobileMenuOpen">
+      <button class="hamburger" @click="toggleMobileMenu" aria-label="Abrir menu"
+        v-show="isMobile && !isMobileMenuOpen">
         <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
         <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
         <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
@@ -42,9 +43,6 @@
         <button class="dark-mode-btn" @click="toggleDarkMode">
           <img class="icon" :alt="darkModeStore.isDark ? 'Modo Claro' : 'Modo Escuro'" :src="darkModeIcon" />
         </button>
-        <router-link to="/">
-          <img class="icon" alt="Buscar" :src="darkModeStore.isDark ? searchIconWhite : searchIcon" />
-        </router-link>
         <router-link to="/">
           <img class="icon" alt="Favoritos" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" />
         </router-link>
@@ -189,9 +187,11 @@ onUnmounted(() => {
 .hamburger .bar.open:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
+
 .hamburger .bar.open:nth-child(2) {
   opacity: 0;
 }
+
 .hamburger .bar.open:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
 }
@@ -200,9 +200,11 @@ onUnmounted(() => {
   .main-menu {
     display: none;
   }
+
   .main-menu.hidden {
     display: none;
   }
+
   .hamburger {
     display: flex;
   }
@@ -214,7 +216,7 @@ onUnmounted(() => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1200;
   display: flex;
   align-items: flex-start;
@@ -223,7 +225,7 @@ onUnmounted(() => {
 
 .mobile-menu {
   background: var(--nav-bg);
-  box-shadow: -2px 0 16px rgba(0,0,0,0.12);
+  box-shadow: -2px 0 16px rgba(0, 0, 0, 0.12);
   width: 220px;
   height: 100vh;
   padding: 48px 24px 24px 24px;
@@ -236,18 +238,27 @@ onUnmounted(() => {
 }
 
 @keyframes slideInMenu {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
-.mobile-menu-fade-enter-active, .mobile-menu-fade-leave-active {
+.mobile-menu-fade-enter-active,
+.mobile-menu-fade-leave-active {
   transition: opacity 0.3s;
 }
-.mobile-menu-fade-enter-from, .mobile-menu-fade-leave-to {
+
+.mobile-menu-fade-enter-from,
+.mobile-menu-fade-leave-to {
   opacity: 0;
 }
 
-.nav-link, .mobile-link {
+.nav-link,
+.mobile-link {
   text-transform: uppercase;
   font-weight: 500;
   font-size: 14px;
@@ -259,7 +270,8 @@ onUnmounted(() => {
   opacity: 0.85;
 }
 
-.nav-link:hover, .mobile-link:hover {
+.nav-link:hover,
+.mobile-link:hover {
   opacity: 0.6;
   color: var(--primary-color);
 }
@@ -312,7 +324,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .dark-mode-btn {
