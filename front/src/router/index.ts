@@ -6,6 +6,7 @@ import Checkout from '@/views/Checkout.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import About from '@/views/About.vue'
+import LookBook from '@/views/LookBook.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -44,6 +45,11 @@ const router = createRouter({
             path: '/about',
             name: 'about',
             component: About
+        },
+        {
+            path: '/lookbook',
+            name: 'lookbook',
+            component: LookBook
         }
     ]
 })

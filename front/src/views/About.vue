@@ -36,7 +36,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 72px 71px 0;
+    padding: 40px 71px 0;
     box-sizing: border-box;
     gap: 32px;
     text-align: center;

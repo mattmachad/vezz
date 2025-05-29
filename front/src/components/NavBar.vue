@@ -7,7 +7,7 @@
 
       <nav class="main-menu">
         <router-link to="/products" class="nav-link">CATÁLOGO</router-link>
-        <a href="#" class="nav-link">LOOKBOOK</a>
+        <router-link to="/lookbook" class="nav-link">LOOKBOOK</router-link>
         <router-link to="/about" class="nav-link">SOBRE</router-link>
       </nav>
 

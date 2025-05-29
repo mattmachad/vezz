@@ -830,10 +830,43 @@ const continueShopping = () => {
 </script>
 
 <style module>
+:global(:root) {
+  --bg-color: #fff;
+  --text-color: #212121;
+  --text-secondary: #666;
+  --text-disabled: #999;
+  --border-color: #d9d9d9;
+  --card-bg: #fff;
+  --input-bg: #fff;
+  --hover-bg: #f5f5f5;
+  --divider-color: rgba(154, 154, 154, 0.42);
+  --primary-color: #439cd3;
+  --error-color: #dc3545;
+  --success-color: #28a745;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+:global(:root.dark-mode) {
+  --bg-color: #121212;
+  --text-color: #fff;
+  --text-secondary: #aaa;
+  --text-disabled: #666;
+  --border-color: #333;
+  --card-bg: #1e1e1e;
+  --input-bg: #2a2a2a;
+  --hover-bg: #2a2a2a;
+  --divider-color: rgba(255, 255, 255, 0.12);
+  --primary-color: #439cd3;
+  --error-color: #dc3545;
+  --success-color: #28a745;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
 .shoppingCart {
-  min-height: calc(100vh - 90px); /* Ajustado para considerar a altura da navbar */
-  background: #fff;
-  margin-top: 0; /* Remove margem superior pois a navbar já ocupa esse espaço */
+  min-height: calc(100vh - 90px);
+  background: var(--bg-color);
+  margin-top: 0;
+  transition: background-color 0.3s;
 }
 
 .main {
@@ -848,7 +881,7 @@ const continueShopping = () => {
   gap: 32px;
   text-align: center;
   font-size: 24px;
-  color: #555;
+  color: var(--text-secondary);
   font-family: Roboto;
 }
 
@@ -1091,12 +1124,13 @@ const continueShopping = () => {
   line-height: 32px;
   font-weight: 600;
   font-size: 20px;
+  color: var(--text-color);
 }
 
 .vDivider {
   align-self: stretch;
   position: relative;
-  background-color: rgba(154, 154, 154, 0.42);
+  background-color: var(--divider-color);
   height: 1px;
   overflow: hidden;
   flex-shrink: 0;
@@ -1123,7 +1157,7 @@ const continueShopping = () => {
   line-height: 20px;
   font-size: 18px;
   margin-bottom: 4px;
-  color: #333;
+  color: var(--text-color);
   font-weight: 500;
 }
 
@@ -1135,7 +1169,7 @@ const continueShopping = () => {
   gap: 6px;
   text-align: center;
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .r19999 {
@@ -1143,11 +1177,11 @@ const continueShopping = () => {
   letter-spacing: 0.5px;
   line-height: 16px;
   font-weight: 500;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .div {
-  color: #ccc;
+  color: var(--text-disabled);
   margin: 0 2px;
 }
 
@@ -1156,7 +1190,7 @@ const continueShopping = () => {
   letter-spacing: 0.5px;
   line-height: 16px;
   font-weight: 500;
-  color: #439cd3;
+  color: var(--primary-color);
 }
 
 .r199991 {
@@ -1165,7 +1199,7 @@ const continueShopping = () => {
   letter-spacing: 0.5px;
   line-height: 20px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-color);
 }
 
 .infoProduct {
@@ -1191,12 +1225,12 @@ const continueShopping = () => {
   height: 14px;
   position: relative;
   max-height: 100%;
-  color: #439cd3;
+  color: var(--primary-color);
 }
 
 .tamanho {
   border-radius: 2px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -1204,6 +1238,7 @@ const continueShopping = () => {
   font-size: 14px;
   position: relative;
   min-width: 80px;
+  background: var(--input-bg);
 }
 
 .tamanho .swapVertIcon {
@@ -1214,7 +1249,7 @@ const continueShopping = () => {
 
 .quantidade {
   border-radius: 2px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1222,6 +1257,7 @@ const continueShopping = () => {
   padding: 4px;
   gap: 8px;
   font-size: 14px;
+  background: var(--input-bg);
 }
 
 .left1 {
@@ -1238,7 +1274,7 @@ const continueShopping = () => {
   line-height: 24px;
   font-weight: 600;
   font-size: 14px;
-  color: #439cd3;
+  color: var(--primary-color);
 }
 
 .delete {
@@ -1252,7 +1288,7 @@ const continueShopping = () => {
   gap: 8px;
   text-align: left;
   font-size: 16px;
-  color: #439cd3;
+  color: var(--primary-color);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1270,7 +1306,7 @@ const continueShopping = () => {
   gap: 0px;
   text-align: center;
   font-size: 15px;
-  color: #8e8e8e;
+  color: var(--text-secondary);
 }
 
 .contentsRight {
@@ -1293,7 +1329,7 @@ const continueShopping = () => {
   gap: 16px;
   text-align: left;
   font-size: 24px;
-  color: #414141;
+  color: var(--text-color);
 }
 
 .contents {
@@ -1310,13 +1346,15 @@ const continueShopping = () => {
   max-width: 520px;
   min-width: 320px;
   border-radius: 16px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border-color);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
   padding: 24px;
+  background: var(--card-bg);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .head2 {
@@ -1330,7 +1368,7 @@ const continueShopping = () => {
 .label {
   align-self: stretch;
   border-radius: 8px;
-  border: 1px solid #d7d7d7;
+  border: 1px solid var(--border-color);
   box-sizing: border-box;
   height: 48px;
   display: flex;
@@ -1339,7 +1377,7 @@ const continueShopping = () => {
   justify-content: flex-start;
   padding: 12px 16px;
   font-size: 14px;
-  color: #757575;
+  color: var(--text-color);
 }
 
 .rua {
@@ -1376,7 +1414,7 @@ const continueShopping = () => {
 .label3 {
   align-self: stretch;
   border-radius: 8px;
-  border: 1px solid #d7d7d7;
+  border: 1px solid var(--border-color);
   box-sizing: border-box;
   height: 48px;
   display: flex;
@@ -1385,7 +1423,34 @@ const continueShopping = () => {
   justify-content: flex-start;
   padding: 12px 16px;
   font-size: 14px;
-  color: #757575;
+  color: var(--text-color);
+  background: var(--input-bg);
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.label3 select {
+  width: 100%;
+  border: none;
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 4px 24px 4px 8px;
+  border-radius: 4px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.label3 select:disabled {
+  background: var(--input-bg);
+  color: var(--text-disabled);
+}
+
+.label3 select option {
+  background: var(--input-bg);
+  color: var(--text-color);
 }
 
 .cidadecep {
@@ -1406,7 +1471,7 @@ const continueShopping = () => {
   gap: 24px;
   text-align: left;
   font-size: 16px;
-  color: #414141;
+  color: var(--text-color);
   padding: 16px 0;
 }
 
@@ -1439,7 +1504,7 @@ const continueShopping = () => {
   align-items: flex-start;
   justify-content: flex-start;
   gap: 16px;
-  color: #414141;
+  color: var(--text-color);
   padding: 16px 0;
 }
 
@@ -1457,7 +1522,7 @@ const continueShopping = () => {
   align-items: flex-start;
   justify-content: flex-start;
   gap: 24px;
-  color: #5c5c5c;
+  color: var(--text-color);
 }
 
 .text {
@@ -1574,14 +1639,21 @@ const continueShopping = () => {
   border: none;
   background: transparent;
   font-size: 14px;
-  color: #212121;
+  color: var(--text-color);
   outline: none;
+  transition: color 0.3s;
 }
 
 .label input::placeholder,
 .label3 input::placeholder,
 .label3 select::placeholder {
-  color: #757575;
+  color: var(--text-secondary);
+}
+
+.label input:disabled,
+.label3 select:disabled {
+  background: transparent;
+  color: var(--text-disabled);
 }
 
 .tamanho,
@@ -1613,12 +1685,6 @@ const continueShopping = () => {
   opacity: 0.7;
 }
 
-.label input:disabled,
-.label3 select:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
 .errorText {
   color: #dc3545;
   font-size: 12px;
@@ -1648,41 +1714,50 @@ const continueShopping = () => {
   align-items: center;
   gap: 12px;
   padding: 24px 16px;
-  border: 1px solid #d9d9d9;
+  border: 1.5px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
+  background: var(--card-bg);
+  color: var(--text-color);
 }
 
 .paymentMethod:hover {
-  border-color: #000;
-  background-color: rgba(0, 0, 0, 0.02);
+  border-color: var(--primary-color);
+  background: var(--hover-bg);
+  color: var(--text-color);
 }
 
 .selected {
-  border-color: #000;
-  background-color: rgba(0, 0, 0, 0.05);
+  border-color: var(--primary-color) !important;
+  background: var(--hover-bg) !important;
+  color: var(--text-color) !important;
 }
 
 .paymentIcon {
   width: 32px;
   height: 32px;
-  color: #555;
+  color: var(--text-color);
+  filter: none;
+  transition: color 0.3s;
 }
 
-.selected .paymentIcon {
-  color: #000;
+.selected .paymentIcon,
+.paymentMethod:hover .paymentIcon {
+  color: var(--primary-color);
 }
 
 .paymentMethod span {
   font-size: 16px;
   font-weight: 500;
-  color: #555;
+  color: var(--text-color);
+  transition: color 0.3s;
 }
 
-.selected span {
-  color: #000;
+.selected span,
+.paymentMethod:hover span {
+  color: var(--primary-color);
 }
 
 .pixContainer,
@@ -1803,9 +1878,11 @@ const continueShopping = () => {
   border: none;
   text-align: center;
   font-size: 14px;
-  color: #8e8e8e;
+  color: var(--text-color);
+  background: var(--input-bg);
   padding: 0;
   margin: 0;
+  transition: background 0.3s, color 0.3s;
 }
 
 .quantityInput::-webkit-outer-spin-button,
@@ -1815,10 +1892,10 @@ const continueShopping = () => {
 }
 
 .sizeSelect {
-  border: none;
-  background: transparent;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
   font-size: 14px;
-  color: #8e8e8e;
+  color: var(--text-color);
   cursor: pointer;
   outline: none;
   width: 100%;
@@ -1831,10 +1908,12 @@ const continueShopping = () => {
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 16px;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 
-.sizeSelect:hover {
-  color: #333;
+.sizeSelect option {
+  background: var(--input-bg);
+  color: var(--text-color);
 }
 
 .delete .swapVertIcon {

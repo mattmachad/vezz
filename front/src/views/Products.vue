@@ -749,7 +749,7 @@ const showToastFlag = ref(false)
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 48px 71px;
+  padding: 48px 24px;
   box-sizing: border-box;
   gap: 32px;
   text-align: left;
@@ -925,7 +925,7 @@ const showToastFlag = ref(false)
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 32px;
   margin-bottom: 64px;
 }
@@ -1123,7 +1123,11 @@ const showToastFlag = ref(false)
   --heart-color: #ff4444;
 }
 
-.filtros { width: 280px; color: #555 }
+.filtros { 
+  width: 280px; 
+  color: #555;
+  transition: width 0.3s ease;
+}
 
 .contents { display: flex; flex-direction: column; gap: 32px }
 
@@ -1544,5 +1548,245 @@ const showToastFlag = ref(false)
 }
 .clearBtn:hover { 
   background: #333;
+}
+</style>
+
+<style scoped>
+@media (max-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .banner {
+    padding: 10px 24px;
+  }
+
+  .explorar-todos-itens {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product {
+    flex-direction: column;
+  }
+
+  .filtros {
+    width: 100% !important;
+    margin-bottom: 24px;
+  }
+
+  .products-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-container {
+    max-width: none;
+  }
+
+  .header-right {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .ordenacao {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sort-dropdown {
+    width: 100%;
+    right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .banner {
+    height: 200px;
+    padding: 10px 16px;
+  }
+
+  .explorar-todos-itens {
+    font-size: 32px;
+  }
+
+  .product {
+    padding: 24px 16px;
+  }
+
+  .cards.list :deep(.produto01) {
+    flex-direction: column;
+    max-height: none;
+    gap: 16px;
+  }
+
+  .cards.list :deep(.imageWrapper) {
+    width: 100%;
+    height: auto;
+    padding-top: 100%;
+  }
+
+  .cards.list :deep(.bottom) {
+    width: 100%;
+  }
+}
+
+/* Ajustes para o menu de filtros em telas pequenas */
+@media (max-width: 768px) {
+  .contents {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+
+  .clearBtn {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Ajustes para o cabeçalho em telas muito pequenas */
+@media (max-width: 480px) {
+  .header-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-toggle {
+    justify-content: center;
+  }
+
+  .product-count {
+    text-align: center;
+  }
+
+  .ordenacao {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ordenar-por {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+/* Ajustes para os botões de ação em telas pequenas */
+@media (max-width: 640px) {
+  .favoriteBtn,
+  .addBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .favoriteBtn img,
+  .addBtn img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Ajustes para o slider de preços em telas pequenas */
+@media (max-width: 480px) {
+  .faixaDeValor {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .input {
+    width: 100%;
+  }
+
+  .mnimo {
+    width: 100%;
+  }
+}
+
+/* Melhorias na visualização da lista em telas médias */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .cards.list :deep(.produto01) {
+    padding: 12px;
+  }
+
+  .cards.list :deep(.imageWrapper) {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* Ajustes responsivos para os elementos do módulo */
+.filtros { 
+  width: 280px; 
+  color: #555;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .group {
+    margin-bottom: 16px;
+  }
+
+  .colors {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .sizes {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .sizeBox {
+    flex: 0 0 auto;
+  }
+
+  .rangeWrapper {
+    margin: 24px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .sizeList {
+    flex-wrap: wrap;
+  }
+
+  .sizeList span {
+    flex: 0 0 auto;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .row:last-child {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Ajustes para o grid de produtos */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 32px;
+  margin-bottom: 64px;
+}
+
+@media (max-width: 359px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
