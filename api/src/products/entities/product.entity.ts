@@ -28,4 +28,7 @@ export class Product {
 
   @Column({ nullable: true })
   picture: string;
+
+  @Column({ nullable: true })
+  detach?: boolean
 }
