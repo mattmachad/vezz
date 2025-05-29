@@ -36,13 +36,18 @@ export class UsersController {
   }
 
   @Post('login')
-  async login(@Body() body: { name: string; password: string }) {
-    const users: any = await this.usersService.findAll();
-    for (const user of users) {
-      if (user.name === body.name && user.password === body.password) {
-        return { message: 'Login bem-sucedido', user };
-      }
+  async login(@Body() body: { email: string; password: string }) {
+    try {
+      const user = await this.usersService.validateUser(body.email, body.password);
+      return {
+        message: 'Login bem-sucedido',
+        user
+      };
+    } catch (error) {
+      return {
+        message: 'Login falhou: usuário ou senha incorretos'
+      };
     }
-    return { message: 'Login falhou: usuário ou senha incorretos' };
   }
+
 }
