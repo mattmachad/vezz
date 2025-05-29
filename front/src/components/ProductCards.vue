@@ -16,7 +16,7 @@
           v-for="product in displayProducts" 
           :key="product.id" 
           class="produto"
-          @click="goToProducts"
+          @click="handleProductClick(product)"
         >
           <div class="contents">
             <img class="foto" :src="product.picture || '/placeholder-image.jpg'" :alt="product.title" />
@@ -64,7 +64,7 @@
 
       <!-- Botão Ver Todos -->
       <div class="view-all-container">
-        <button class="view-all-btn" @click="goToProducts">
+        <button class="view-all-btn" @click="router.push('/products')">
           VER TODOS OS PRODUTOS
           <span class="arrow">→</span>
         </button>
@@ -83,6 +83,11 @@
           </div>
         </div>
       </transition>
+
+      <LoginModal 
+        :show="showLoginModal" 
+        @close="showLoginModal = false"
+      />
     </section>
   </template>
   
@@ -94,6 +99,7 @@
   import { useAuthStore } from '@/stores/auth'
   import { useFavoritesStore } from '@/stores/favorites'
   import api from '@/services/api'
+  import LoginModal from './LoginModal.vue'
   
   import addIcon from '@/assets/cards/add.svg'
   import addIconWhite from '@/assets/cards/add-white.svg'
@@ -201,12 +207,18 @@
   })
 
   const goToProducts = () => {
+    if (!isUserLoggedIn.value) {
+      showLoginModal.value = true
+      return
+    }
     router.push('/products')
   }
 
+  const showLoginModal = ref(false)
+
   const addToCart = (product: Product) => {
     if (!isUserLoggedIn.value) {
-      showToast('Você precisa estar logado para adicionar produtos ao carrinho!')
+      showLoginModal.value = true
       return
     }
     
@@ -226,11 +238,7 @@
 
   const toggleFavorite = (product: Product) => {
     if (!isUserLoggedIn.value) {
-      toastMessage.value = 'Você precisa estar logado para favoritar produtos!'
-      showToastFlag.value = true
-      setTimeout(() => {
-        showToastFlag.value = false
-      }, 3000)
+      showLoginModal.value = true
       return
     }
 
@@ -255,6 +263,14 @@
 
   const isFavorite = (productId: number) => {
     return favoritesStore.isFavorite(productId)
+  }
+
+  const handleProductClick = (product: Product) => {
+    if (!isUserLoggedIn.value) {
+      showLoginModal.value = true
+      return
+    }
+    goToProducts()
   }
   </script>
   

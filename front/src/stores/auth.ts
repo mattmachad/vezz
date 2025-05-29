@@ -38,15 +38,21 @@ export const useAuthStore = defineStore('auth', {
                         this.isAuthenticated = true
                     } else {
                         console.error('Invalid user data structure in localStorage')
-                        this.logout()
+                        this.clearAuth()
                     }
                 } catch (error) {
                     console.error('Error parsing stored user:', error)
-                    this.logout()
+                    this.clearAuth()
                 }
             } else {
-                this.logout()
+                this.clearAuth()
             }
+        },
+
+        clearAuth() {
+            this.user = null
+            this.isAuthenticated = false
+            localStorage.removeItem('user')
         },
 
         login(user: User) {
@@ -76,9 +82,8 @@ export const useAuthStore = defineStore('auth', {
         },
 
         logout() {
-            this.user = null
-            this.isAuthenticated = false
-            localStorage.removeItem('user')
+            this.clearAuth()
+            window.location.reload()
         }
     },
 

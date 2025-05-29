@@ -791,6 +791,12 @@ const finishOrder = async () => {
     return
   }
 
+  if (!isAddressComplete.value) {
+    toastMessage.value = 'Por favor, preencha o endereço completo'
+    showToast.value = true
+    return
+  }
+
   try {
     // Re-initialize auth store to ensure fresh data
     authStore.init()
@@ -825,6 +831,33 @@ const finishOrder = async () => {
       return
     }
 
+    // Update user's address in the database
+    try {
+      if (!user || !user.id) {
+        throw new Error('User data not available')
+      }
+
+      const userUpdateResponse = await fetch(`http://localhost:3003/users/${user.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          street: address.value.street,
+          city: address.value.city,
+          state: address.value.state,
+          cep: address.value.zipCode
+        })
+      })
+
+      if (!userUpdateResponse.ok) {
+        console.error('Failed to update user address:', await userUpdateResponse.json())
+      }
+    } catch (error) {
+      console.error('Error updating user address:', error)
+    }
+
     localStorage.setItem('type_payment', payment.value.method)
 
     const requestPayload = {
@@ -837,7 +870,15 @@ const finishOrder = async () => {
         quantity: item.quantity,
         image: item.image
       })),
-      payment_type: payment.value.method
+      payment_type: payment.value.method,
+      address: {
+        street: address.value.street,
+        number: address.value.number,
+        neighborhood: address.value.neighborhood,
+        city: address.value.city,
+        state: address.value.state,
+        zipCode: address.value.zipCode
+      }
     }
 
     // Debug log for request payload
@@ -1077,45 +1118,52 @@ watch(address, (newAddress) => {
   }
 
   .product {
-    flex-direction: column !important;
+    flex-direction: row !important;
     align-items: center !important;
-  }
-
-  .photoIcon {
-    width: 100% !important;
-    max-width: 200px !important;
-    height: auto !important;
-  }
-
-  .contentsRight {
-    width: 100% !important;
-  }
-
-  .infoProduct {
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-  }
-
-  .textLeft {
-    align-items: center !important;
-    width: 100% !important;
-  }
-
-  .body {
-    flex-direction: column !important;
+    flex-wrap: wrap !important;
     gap: 16px !important;
   }
 
-  .left1 {
+  .photoIcon {
+    width: 100px !important;
+    height: 100px !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+  }
+
+  .contentsRight {
+    flex: 1 !important;
+    min-width: 200px !important;
+  }
+
+  .infoProduct {
+    flex-direction: row !important;
+    align-items: center !important;
+    text-align: left !important;
+    justify-content: space-between !important;
+  }
+
+  .textLeft {
+    align-items: flex-start !important;
+    flex: 1 !important;
+  }
+
+  .body {
+    flex-direction: row !important;
+    gap: 16px !important;
+    justify-content: space-between !important;
     width: 100% !important;
-    justify-content: center !important;
+  }
+
+  .left1 {
+    width: auto !important;
+    justify-content: flex-start !important;
   }
 
   .delete {
-    width: 100% !important;
-    justify-content: center !important;
-    margin-left: 0 !important;
+    width: auto !important;
+    justify-content: flex-end !important;
+    margin-left: auto !important;
   }
 
   .cidadecep {

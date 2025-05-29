@@ -45,6 +45,22 @@ function onVoltarContainerClick() {
 </style>
 
 <style scoped>
+:root {
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --accent-color: #2baeff;
+  --bg-color: #ffffff;
+  --icon-color: #000000;
+}
+
+:root.dark-mode {
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --accent-color: #2baeff;
+  --bg-color: #121212;
+  --icon-color: #ffffff;
+}
+
 .container {
   height: 100vh;
   width: 100%;
@@ -55,6 +71,7 @@ function onVoltarContainerClick() {
   padding: 24px;
   font-family: Roboto, sans-serif;
   gap: 48px;
+  background-color: var(--bg-color);
 }
 
 .success-box {
@@ -70,6 +87,10 @@ function onVoltarContainerClick() {
   height: 144px;
 }
 
+.icon-wrapper img {
+  filter: var(--icon-filter);
+}
+
 .text-content {
   display: flex;
   flex-direction: column;
@@ -82,15 +103,16 @@ function onVoltarContainerClick() {
   font-weight: 600;
   letter-spacing: 1.25px;
   margin: 0;
+  color: var(--text-primary);
 }
 
 .highlight {
-  color: #2baeff;
+  color: var(--accent-color);
 }
 
 .order-id {
   font-size: 16px;
-  color: #757575;
+  color: var(--text-secondary);
   letter-spacing: 1.25px;
   margin: 0;
 }
@@ -102,7 +124,7 @@ function onVoltarContainerClick() {
   padding: 8px 16px;
   border: none;
   background: none;
-  color: #757575;
+  color: var(--text-secondary);
   font-size: 16px;
   cursor: pointer;
   letter-spacing: 1.25px;
@@ -116,5 +138,24 @@ function onVoltarContainerClick() {
 .chevron-icon {
   width: 24px;
   height: 24px;
+  filter: var(--icon-filter);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #ffffff;
+    --text-secondary: #aaaaaa;
+    --bg-color: #121212;
+    --icon-filter: invert(1);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --bg-color: #ffffff;
+    --icon-filter: none;
+  }
 }
 </style>

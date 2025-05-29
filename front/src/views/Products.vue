@@ -178,7 +178,7 @@
             <button @click="clearFilters" class="clear-filters-btn">Limpar Filtros</button>
           </div>
           <transition-group name="product-list" tag="div" class="products-grid">
-            <div v-for="product in paginatedProducts" :key="product.id" :class="$style.produto01">
+            <div v-for="product in paginatedProducts" :key="product.id" :class="$style.produto01" @click="handleProductClick(product)">
               <div :class="$style.imageWrapper">
                 <img :class="$style.fotoIcon" :alt="product.name" :src="product.images[0]" />
                 <button v-if="isUserLoggedIn" :class="$style.favoriteBtn" @click="toggleFavorite(product.id)">
@@ -225,6 +225,11 @@
         </div>
       </div>
     </transition>
+
+    <LoginModal 
+      :show="showLoginModal" 
+      @close="showLoginModal = false"
+    />
   </div>
 </template>
 
@@ -237,6 +242,7 @@ import type { Product, DisplayProduct } from '../types/product'
 import { useCartStore } from '@/stores/cart'
 import { useFavoritesStore } from '@/stores/favorites'
 import type { CartItem } from '@/stores/cart'
+import LoginModal from '../components/LoginModal.vue'
 
 import addIcon from '../assets/cards/add.svg'
 import favoriteIcon from '../assets/cards/favorite.svg'
@@ -453,7 +459,14 @@ const showToast = (message: string) => {
   }, 3000)
 }
 
+const showLoginModal = ref(false)
+
 const toggleFavorite = (productId: number) => {
+  if (!isUserLoggedIn.value) {
+    showLoginModal.value = true
+    return
+  }
+
   if (isFavorite(productId)) {
     favoritesStore.removeFromFavorites(productId)
     showToast('Produto removido dos favoritos!')
@@ -581,6 +594,11 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
 
 const addToCart = (product: DisplayProduct) => {
   try {
+    if (!isUserLoggedIn.value) {
+      showLoginModal.value = true
+      return
+    }
+
     if (!cart.value) {
       cart.value = useCartStore()
     }
@@ -612,6 +630,15 @@ const addToCart = (product: DisplayProduct) => {
 const isUserLoggedIn = computed(() => {
   return !!localStorage.getItem('user')
 })
+
+const handleProductClick = (product: DisplayProduct) => {
+  if (!isUserLoggedIn.value) {
+    showLoginModal.value = true
+    return
+  }
+  // Aqui você pode adicionar a navegação para a página do produto
+  // router.push(`/product/${product.id}`)
+}
 </script>
 
 <style scoped>

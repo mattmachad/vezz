@@ -121,16 +121,6 @@
             </button>
           </div>
           <div :class="$style.vDivider" />
-          <div :class="$style.price">
-            <div :class="$style.priceRow">
-              <div :class="$style.priceLabel">Subtotal</div>
-              <div :class="$style.priceValue">R$ {{ subtotal.toFixed(2) }}</div>
-            </div>
-            <div :class="$style.priceRow">
-              <div :class="$style.priceLabel">Total</div>
-              <div :class="$style.priceValue">R$ {{ subtotal.toFixed(2) }}</div>
-            </div>
-          </div>
           <div :class="$style.vDivider" />
         </div>
       </div>
