@@ -5,11 +5,38 @@
         <img class="nav-icon" alt="Logo VEZZ" :src="logoSrc" />
       </router-link>
 
-      <nav class="main-menu">
-        <router-link to="/products" class="nav-link">CATÁLOGO</router-link>
-        <router-link to="/lookbook" class="nav-link">LOOKBOOK</router-link>
-        <router-link to="/about" class="nav-link">SOBRE</router-link>
+      <nav class="main-menu" :class="{ hidden: isMobileMenuOpen }">
+        <router-link to="/products" class="nav-link" @click="closeMobileMenu">CATÁLOGO</router-link>
+        <router-link to="/lookbook" class="nav-link" @click="closeMobileMenu">LOOKBOOK</router-link>
+        <router-link to="/about" class="nav-link" @click="closeMobileMenu">SOBRE</router-link>
       </nav>
+
+      <button class="hamburger" @click="toggleMobileMenu" aria-label="Abrir menu" v-show="isMobile && !isMobileMenuOpen">
+        <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
+        <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
+        <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
+      </button>
+
+      <transition name="mobile-menu-fade">
+        <div v-if="isMobileMenuOpen" class="mobile-menu-overlay" @click.self="closeMobileMenu">
+          <nav class="mobile-menu">
+            <button class="hamburger close-x" @click="closeMobileMenu" aria-label="Fechar menu">
+              <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
+              <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
+              <span :class="{ 'bar': true, 'open': isMobileMenuOpen }"></span>
+            </button>
+            <router-link to="/products" class="nav-link" @click="closeMobileMenu">CATÁLOGO</router-link>
+            <router-link to="/lookbook" class="nav-link" @click="closeMobileMenu">LOOKBOOK</router-link>
+            <router-link to="/about" class="nav-link" @click="closeMobileMenu">SOBRE</router-link>
+            <div class="mobile-icons">
+              <router-link to="/" class="mobile-link" @click="closeMobileMenu">Buscar</router-link>
+              <router-link to="/" class="mobile-link" @click="closeMobileMenu">Favoritos</router-link>
+              <router-link to="/login" class="mobile-link" @click="closeMobileMenu">Perfil</router-link>
+              <router-link to="/checkout" class="mobile-link" @click="closeMobileMenu">Sacola</router-link>
+            </div>
+          </nav>
+        </div>
+      </transition>
 
       <div class="icons">
         <button class="dark-mode-btn" @click="toggleDarkMode">
@@ -34,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { useDarkModeStore } from '@/stores/darkMode'
 import type { CartItem } from '@/stores/cart'
@@ -74,6 +101,30 @@ const logoSrc = computed(() => {
 const toggleDarkMode = () => {
   darkModeStore.toggleDarkMode()
 }
+
+const isMobile = ref(false)
+const isMobileMenuOpen = ref(false)
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 900
+}
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 </script>
 
 <style scoped>
@@ -96,6 +147,7 @@ const toggleDarkMode = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 
 .nav-icon {
@@ -108,7 +160,94 @@ const toggleDarkMode = () => {
   gap: 24px;
 }
 
-.nav-link {
+.main-menu.hidden {
+  display: none;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1201;
+}
+
+.hamburger .bar {
+  width: 28px;
+  height: 3px;
+  background: var(--text-color);
+  margin: 4px 0;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+.hamburger .bar.open:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger .bar.open:nth-child(2) {
+  opacity: 0;
+}
+.hamburger .bar.open:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 900px) {
+  .main-menu {
+    display: none;
+  }
+  .main-menu.hidden {
+    display: none;
+  }
+  .hamburger {
+    display: flex;
+  }
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  z-index: 1200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.mobile-menu {
+  background: var(--nav-bg);
+  box-shadow: -2px 0 16px rgba(0,0,0,0.12);
+  width: 220px;
+  height: 100vh;
+  padding: 48px 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+  animation: slideInMenu 0.3s;
+  position: relative;
+}
+
+@keyframes slideInMenu {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.mobile-menu-fade-enter-active, .mobile-menu-fade-leave-active {
+  transition: opacity 0.3s;
+}
+.mobile-menu-fade-enter-from, .mobile-menu-fade-leave-to {
+  opacity: 0;
+}
+
+.nav-link, .mobile-link {
   text-transform: uppercase;
   font-weight: 500;
   font-size: 14px;
@@ -116,10 +255,13 @@ const toggleDarkMode = () => {
   text-decoration: none;
   letter-spacing: 1.25px;
   transition: opacity 0.2s, color 0.3s;
+  font-family: 'Roboto', sans-serif;
+  opacity: 0.85;
 }
 
-.nav-link:hover {
-  opacity: 0.7;
+.nav-link:hover, .mobile-link:hover {
+  opacity: 0.6;
+  color: var(--primary-color);
 }
 
 .icons {
@@ -127,6 +269,12 @@ const toggleDarkMode = () => {
   gap: 16px;
   align-items: center;
   height: 24px;
+}
+
+@media (max-width: 900px) {
+  .icons {
+    display: none;
+  }
 }
 
 .icon {
@@ -196,5 +344,41 @@ const toggleDarkMode = () => {
   --nav-bg: #212121;
   --nav-shadow: 0px 10px 21px rgba(255, 255, 255, 0.15);
   --text-color: #fff;
+}
+
+.mobile-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 32px;
+  padding-left: 0;
+}
+
+.mobile-link {
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  letter-spacing: 1.25px;
+  opacity: 0.85;
+  transition: opacity 0.2s, color 0.3s;
+  text-transform: uppercase;
+  padding-left: 0;
+}
+
+.mobile-link:hover {
+  opacity: 0.6;
+  color: var(--primary-color);
+}
+
+.hamburger.close-x {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1300;
+  margin: 0;
 }
 </style>
