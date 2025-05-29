@@ -17,15 +17,24 @@ export class User {
   @Column()
   cep: string;
 
-  @Column( {nullable: true } )
+  @Column({ nullable: true })
   city: string;
 
-  @Column( {nullable: true } )
+  @Column({ nullable: true })
   street: string;
 
-  @Column( {nullable: true } )
+  @Column({ nullable: true })
   state: string;
 
   @Column()
   phone: string;
+
+  @Column()
+  is_admin: boolean;
+
+  @Column({ nullable: true })
+  picture: string;
+
+  @Column({ nullable: true })
+  is_favorite: string;
 }

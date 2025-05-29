@@ -25,4 +25,7 @@ export class Product {
 
   @Column({ type: 'enum', enum: Category, nullable: true })
   category: Category;
+
+  @Column({ nullable: true })
+  picture: string;
 }
