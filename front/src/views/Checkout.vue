@@ -334,7 +334,7 @@ onMounted(async () => {
       }, 1500)
       return
     }
-    
+
     cartStore.value = useCartStore()
     // Only redirect if cart is empty
     if (!cartStore.value?.items?.length) {
