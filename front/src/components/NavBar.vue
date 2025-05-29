@@ -6,7 +6,7 @@
       <nav class="main-menu">
         <router-link to="/products" class="nav-link">CATÁLOGO</router-link>
         <a href="#" class="nav-link">LOOKBOOK</a>
-        <a href="#" class="nav-link">SOBRE</a>
+        <router-link to="/about" class="nav-link">SOBRE</router-link>
       </nav>
 
       <div class="icons">
