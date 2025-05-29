@@ -325,19 +325,32 @@ const showEmptyCartMessage = () => {
 
 onMounted(async () => {
   try {
-    // Check if user is logged in
-    if (!authStore.isLoggedIn) {
+    // Re-initialize auth store
+    authStore.init()
+
+    // Debug log for initial mount
+    console.log('Debug - Component Mount:', {
+      isLoggedIn: authStore.isLoggedIn,
+      user: authStore.currentUser,
+      cartItems: cartStore.value?.items?.length || 0
+    })
+
+    // Check if user is logged in with valid data
+    if (!authStore.isLoggedIn || !authStore.currentUser) {
+      console.log('Debug - Not logged in or invalid user data on mount')
       toastMessage.value = 'Você precisa estar logado para acessar o carrinho'
       showToast.value = true
       setTimeout(() => {
+        authStore.logout() // Ensure clean logout
         router.push('/login')
       }, 1500)
       return
     }
-    
+
     cartStore.value = useCartStore()
     // Only redirect if cart is empty
     if (!cartStore.value?.items?.length) {
+      console.log('Debug - Empty cart on mount')
       router.push('/products')
       return
     }
@@ -357,12 +370,18 @@ onMounted(async () => {
           sizes: availableSizes,
           quantities: product.quantities
         })
-      } catch (error) {
-        console.error(`Failed to fetch product ${item.id} details:`, error)
+      } catch (err: any) {
+        console.error('Debug - Failed to fetch product details:', {
+          productId: item.id,
+          error: err.message
+        })
       }
     }
-  } catch (error) {
-    console.error('Failed to initialize cart store:', error)
+  } catch (err: any) {
+    console.error('Debug - Mount error:', {
+      error: err,
+      message: err.message
+    })
   }
 })
 
@@ -773,8 +792,18 @@ const finishOrder = async () => {
   }
 
   try {
+    // Re-initialize auth store to ensure fresh data
+    authStore.init()
+
     const cartItems = cartStore.value?.items || []
     const user = authStore.currentUser
+
+    // Debug logs for authentication state
+    console.log('Debug - Auth State:', {
+      isLoggedIn: authStore.isLoggedIn,
+      user: authStore.currentUser,
+      hasValidUser: !!authStore.currentUser?.id
+    })
 
     if (!cartItems.length) {
       toastMessage.value = 'Carrinho vazio!'
@@ -782,16 +811,23 @@ const finishOrder = async () => {
       return
     }
 
-    if (!user || !user.id) {
+    // Enhanced authentication check
+    if (!authStore.isLoggedIn || !authStore.currentUser?.id) {
+      console.log('Debug - Auth Failed:', {
+        isLoggedIn: authStore.isLoggedIn,
+        hasUser: !!authStore.currentUser,
+        userId: authStore.currentUser?.id
+      })
       toastMessage.value = 'Usuário não autenticado!'
       showToast.value = true
+      authStore.logout() // Ensure clean logout
       router.push('/login')
       return
     }
 
     localStorage.setItem('type_payment', payment.value.method)
 
-    const response = await api.post('/products/buy', {
+    const requestPayload = {
       user,
       products: cartItems.map((item: any) => ({
         id: item.id,
@@ -802,21 +838,63 @@ const finishOrder = async () => {
         image: item.image
       })),
       payment_type: payment.value.method
-    })
+    }
 
-    console.log('Pedido finalizado com sucesso:', response.data)
+    // Debug log for request payload
+    console.log('Debug - Request Payload:', requestPayload)
+
+    const response = await api.post('/products/buy', requestPayload)
+
+    // Debug log for API response
+    console.log('Debug - Raw API Response:', response)
+    console.log('Debug - API Response Data:', response.data)
+
+    if (!response.data) {
+      throw new Error('No data received from API')
+    }
+
     toastMessage.value = 'Pedido finalizado com sucesso!'
     showToast.value = true
 
-    localStorage.removeItem('cart')
+    // Clear cart and payment type
+    cartStore.value.clearCart() // Use the store method instead of directly manipulating localStorage
     localStorage.removeItem('type_payment')
+    
+    // Generate a fallback order ID if none is provided
+    const orderId = response.data?.orderId || Date.now().toString()
+    
+    // Debug log before redirect
+    console.log('Debug - Preparing redirect to:', {
+      route: 'ordersuccess',
+      orderId: orderId
+    })
+
     setTimeout(() => {
-      router.push('/orders')
+      router.push({
+        name: 'ordersuccess',
+        query: { id: orderId }
+      })
     }, 2000)
 
-  } catch (error) {
-    console.error('Erro ao finalizar pedido:', error)
-    toastMessage.value = 'Erro ao finalizar pedido. Tente novamente.'
+  } catch (err: any) {
+    // Enhanced error logging
+    console.error('Debug - Order Error:', {
+      error: err,
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status,
+      stack: err.stack
+    })
+    
+    // More specific error message based on the error type
+    if (err.response?.status === 401) {
+      toastMessage.value = 'Sessão expirada. Por favor, faça login novamente.'
+      setTimeout(() => router.push('/login'), 2000)
+    } else if (err.response?.status === 400) {
+      toastMessage.value = 'Dados inválidos. Por favor, verifique as informações.'
+    } else {
+      toastMessage.value = 'Erro ao finalizar pedido. Por favor, tente novamente.'
+    }
     showToast.value = true
   }
 }

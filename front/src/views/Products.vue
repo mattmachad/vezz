@@ -57,9 +57,9 @@
                 :style="{ transform: sectionsOpen.colors ? 'rotate(0deg)' : 'rotate(180deg)' }" />
             </div>
             <div v-show="sectionsOpen.colors" :class="$style.colors">
-              <div v-for="cor in ['#000', '#ccc', '#fff', '#383873', '#ac4f4f', '#fffd8b', '#cd57c1']" :key="cor"
-                :class="$style.colorCircle" :style="{ backgroundColor: cor }" @click="selectFilter('color', cor)">
-                <div v-if="selectedFilters.color.includes(cor)" :class="$style.colorSelected" />
+              <div v-for="[colorName, colorHex] in Object.entries(colorMapping)" :key="colorName"
+                :class="$style.colorCircle" :style="{ backgroundColor: colorHex }" @click="selectFilter('color', colorName)">
+                <div v-if="selectedFilters.color.includes(colorName)" :class="$style.colorSelected" />
               </div>
             </div>
           </section>
@@ -219,8 +219,10 @@
     </div>
 
     <transition name="toast">
-      <div v-if="showToastFlag" class="toast">
-        {{ toastMessage }}
+      <div v-if="showToastFlag" class="toast-container">
+        <div class="toast">
+          {{ toastMessage }}
+        </div>
       </div>
     </transition>
   </div>
@@ -252,6 +254,17 @@ const sectionsOpen = ref({
   sizes: true,
   prices: true
 })
+
+const colorMapping = {
+  'preto': '#000',
+  'branco': '#fff',
+  'cinza': '#ccc',
+  'azul': '#383873',
+  'vermelho': '#ac4f4f',
+  'amarelo': '#fffd8b',
+  'rosa': '#cd57c1',
+  'verde': '#4caf50'
+}
 
 const selectedFilters = ref({
   category: [] as string[],
@@ -335,8 +348,8 @@ const categoryMapping: { [key: string]: string } = {
 }
 
 const genderMapping: { [key: string]: string } = {
-  'Masculino': 'male',
-  'Feminino': 'female',
+  'Homem': 'male',
+  'Mulher': 'female',
   'Unissex': 'unisex'
 }
 
@@ -367,7 +380,7 @@ const filteredProducts = computed(() => {
 
   if (selectedFilters.value.color.length > 0) {
     filtered = filtered.filter(product =>
-      selectedFilters.value.color.includes(product.color.toLowerCase())
+      selectedFilters.value.color.includes(product.color)
     )
   }
 
@@ -422,19 +435,35 @@ const loadMore = () => {
 
 const viewMode = ref<'grid' | 'list'>('grid')
 
-const toggleFavorite = (productId: number) => {
-  favoritesStore.addToFavorites(productId)
-}
-
-const isFavorite = (productId: number) => favoritesStore.isFavorite(productId)
+const toastMessage = ref('')
+const showToastFlag = ref(false)
+const addCounter = ref(0)
+let toastTimeout: ReturnType<typeof setTimeout> | null = null
 
 const showToast = (message: string) => {
   toastMessage.value = message
   showToastFlag.value = true
-  setTimeout(() => {
+  
+  if (toastTimeout) {
+    clearTimeout(toastTimeout)
+  }
+  
+  toastTimeout = setTimeout(() => {
     showToastFlag.value = false
   }, 3000)
 }
+
+const toggleFavorite = (productId: number) => {
+  if (isFavorite(productId)) {
+    favoritesStore.removeFromFavorites(productId)
+    showToast('Produto removido dos favoritos!')
+  } else {
+    favoritesStore.addToFavorites(productId)
+    showToast('Produto adicionado aos favoritos!')
+  }
+}
+
+const isFavorite = (productId: number) => favoritesStore.isFavorite(productId)
 
 const toggleSection = (section: keyof typeof sectionsOpen.value) => {
   sectionsOpen.value[section] = !sectionsOpen.value[section]
@@ -466,6 +495,9 @@ const clearFilters = () => {
     color: [],
     size: []
   }
+
+  searchQuery.value = ''
+  currentPage.value = 1
 
   const range = dynamicPriceRange.value
   priceRange.value = {
@@ -553,7 +585,6 @@ const addToCart = (product: DisplayProduct) => {
       cart.value = useCartStore()
     }
 
-    // Find first available size
     const availableSize = product.sizeDetails.find(s => s.available)
     if (!availableSize) {
       showToast('Produto indisponível')
@@ -578,9 +609,6 @@ const addToCart = (product: DisplayProduct) => {
   }
 }
 
-const toastMessage = ref('')
-const showToastFlag = ref(false)
-
 const isUserLoggedIn = computed(() => {
   return !!localStorage.getItem('user')
 })
@@ -590,6 +618,7 @@ const isUserLoggedIn = computed(() => {
 .products-container {
   min-height: 100vh;
   font-family: 'Roboto', sans-serif;
+  overflow-x: hidden;
 }
 
 .banner {
@@ -618,6 +647,7 @@ const isUserLoggedIn = computed(() => {
   justify-content: flex-start;
   gap: 12px;
   width: 100%;
+  max-width: 100%;
 }
 
 .home-catalogo-container {
@@ -626,6 +656,7 @@ const isUserLoggedIn = computed(() => {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .home {
@@ -648,6 +679,7 @@ const isUserLoggedIn = computed(() => {
   letter-spacing: 0.94px;
   font-weight: 600;
   color: #fff;
+  word-break: break-word;
 }
 
 .product {
@@ -664,13 +696,17 @@ const isUserLoggedIn = computed(() => {
   font-size: 14px;
   color: #555;
   background: transparent;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .products {
   flex: 1;
-  max-width: none;
+  max-width: 100%;
   width: 100%;
   background: transparent;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .products-header {
@@ -681,6 +717,7 @@ const isUserLoggedIn = computed(() => {
   gap: 24px;
   flex-wrap: wrap;
   background: transparent;
+  width: 100%;
 }
 
 .search-container {
@@ -688,6 +725,7 @@ const isUserLoggedIn = computed(() => {
   flex: 1;
   max-width: 400px;
   background: transparent;
+  min-width: 0;
 }
 
 .search-input {
@@ -698,11 +736,13 @@ const isUserLoggedIn = computed(() => {
   font-size: 14px;
   transition: all 0.3s ease;
   background: transparent;
+  box-sizing: border-box;
 }
 
 .search-input:focus {
   border-color: #000;
   box-shadow: none;
+  outline: none;
 }
 
 .search-icon {
@@ -719,6 +759,7 @@ const isUserLoggedIn = computed(() => {
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .product-count {
@@ -767,6 +808,8 @@ const isUserLoggedIn = computed(() => {
   gap: 8px;
   position: relative;
   cursor: pointer;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .ordenar-por {
@@ -774,6 +817,7 @@ const isUserLoggedIn = computed(() => {
   letter-spacing: 1.25px;
   line-height: 16px;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .filtro {
@@ -784,6 +828,14 @@ const isUserLoggedIn = computed(() => {
   gap: 4px;
   transition: background 0.2s ease;
   background: transparent;
+  min-width: 0;
+}
+
+.filtro .roupas {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
 .ordenacao:hover .filtro {
@@ -792,6 +844,7 @@ const isUserLoggedIn = computed(() => {
 
 .keyboard-arrow-up-icon {
   transition: transform 0.3s ease;
+  flex-shrink: 0;
 }
 
 .sort-dropdown {
@@ -836,6 +889,7 @@ const isUserLoggedIn = computed(() => {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 32px;
   margin-bottom: 64px;
+  width: 100%;
 }
 
 .cards.list {
@@ -843,7 +897,7 @@ const isUserLoggedIn = computed(() => {
   flex-direction: column;
   gap: 16px;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 64px;
 }
 
 .cards.list :deep(.produto01) {
@@ -969,17 +1023,46 @@ const isUserLoggedIn = computed(() => {
   }
 }
 
-.toast {
+.button {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.v-btn1 {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: 1.25px;
+  transition: background 0.2s ease;
+}
+
+.v-btn1:hover {
+  background: #333;
+}
+
+.toast-container {
   position: fixed;
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast {
   background: #333;
   color: white;
   padding: 16px 32px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
   font-size: 14px;
 }
 
@@ -1489,6 +1572,12 @@ const isUserLoggedIn = computed(() => {
 </style>
 
 <style scoped>
+@media (max-width: 1280px) {
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 1024px) {
   .cards {
     grid-template-columns: repeat(2, 1fr);
@@ -1501,29 +1590,83 @@ const isUserLoggedIn = computed(() => {
   .explorar-todos-itens {
     font-size: 48px;
   }
+
+  .product {
+    padding: 32px 24px;
+  }
 }
 
 @media (max-width: 768px) {
   .product {
     flex-direction: column;
+    padding: 24px 16px;
+    align-items: center;
   }
 
   .filtros {
     width: 100% !important;
-    margin-bottom: 24px;
+    max-width: 600px;
+    margin: 0 auto 24px;
+    padding: 0;
+  }
+
+  :deep(.contents) {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 16px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin: 0 auto;
+  }
+
+  :deep(.group) {
+    margin-bottom: 0;
+  }
+
+  :deep(.colors) {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  :deep(.sizes) {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  :deep(.options) {
+    padding: 8px 0;
+  }
+
+  :deep(.priceSection) {
+    margin-top: 16px;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  :deep(.clearBtn) {
+    margin-top: 8px;
   }
 
   .products-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
   }
 
   .search-container {
     max-width: none;
+    width: 100%;
   }
 
   .header-right {
-    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100%;
     gap: 16px;
   }
 
@@ -1533,14 +1676,26 @@ const isUserLoggedIn = computed(() => {
   }
 
   .sort-dropdown {
-    width: 100%;
-    right: 0;
+    width: calc(100% - 32px);
+    right: 16px;
+    left: 16px;
+  }
+
+  .cards {
+    padding: 0 8px;
+    gap: 24px;
+  }
+
+  .banner {
+    padding: 10px 16px;
   }
 }
 
 @media (max-width: 640px) {
   .cards {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0;
   }
 
   .banner {
@@ -1550,16 +1705,23 @@ const isUserLoggedIn = computed(() => {
 
   .explorar-todos-itens {
     font-size: 32px;
+    line-height: 1.2;
   }
 
   .product {
-    padding: 24px 16px;
+    padding: 16px;
+    gap: 24px;
+  }
+
+  .products-header {
+    margin-bottom: 24px;
   }
 
   .cards.list :deep(.produto01) {
     flex-direction: column;
     max-height: none;
     gap: 16px;
+    padding: 12px;
   }
 
   .cards.list :deep(.imageWrapper) {
@@ -1571,18 +1733,31 @@ const isUserLoggedIn = computed(() => {
   .cards.list :deep(.bottom) {
     width: 100%;
   }
+
+  .ordenacao .filtro {
+    padding: 8px 12px;
+  }
+
+  .ordenacao .filtro .roupas {
+    max-width: 120px;
+    font-size: 13px;
+  }
+
+  .ordenar-por {
+    font-size: 13px;
+  }
 }
 
 /* Ajustes para o menu de filtros em telas pequenas */
 @media (max-width: 768px) {
   .contents {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 16px;
   }
 
   .clearBtn {
-    grid-column: 1 / -1;
+    width: 100%;
   }
 }
 
@@ -1591,31 +1766,50 @@ const isUserLoggedIn = computed(() => {
   .header-right {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
   }
 
   .view-toggle {
     justify-content: center;
+    width: 100%;
   }
 
   .product-count {
     text-align: center;
+    width: 100%;
   }
 
   .ordenacao {
-    flex-wrap: wrap;
-    justify-content: center;
-    text-align: center;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
   }
 
   .ordenar-por {
     width: 100%;
-    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .filtro {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .explorar-todos-itens {
+    font-size: 24px;
+  }
+
+  .home-catalogo-container {
+    font-size: 14px;
+  }
+
+  .product {
+    padding: 16px 12px;
   }
 }
 
 /* Ajustes para os botões de ação em telas pequenas */
 @media (max-width: 640px) {
-
   .favoriteBtn,
   .addBtn {
     width: 32px;
@@ -1633,7 +1827,8 @@ const isUserLoggedIn = computed(() => {
 @media (max-width: 480px) {
   .faixaDeValor {
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
+    width: 100%;
   }
 
   .divider {
@@ -1661,11 +1856,45 @@ const isUserLoggedIn = computed(() => {
   }
 }
 
+/* Ajustes para telas muito pequenas */
+@media (max-width: 360px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .explorar-todos-itens {
+    font-size: 20px;
+  }
+
+  .banner {
+    height: 150px;
+  }
+
+  .product {
+    padding: 12px 8px;
+  }
+
+  .products-header {
+    gap: 12px;
+  }
+
+  .search-input {
+    padding: 10px 35px 10px 12px;
+    font-size: 14px;
+  }
+
+  .v-btn1 {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+}
+
 /* Ajustes responsivos para os elementos do módulo */
 .filtros {
   width: 280px;
   color: #555;
   transition: width 0.3s ease;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
@@ -1676,7 +1905,7 @@ const isUserLoggedIn = computed(() => {
   .colors {
     justify-content: flex-start;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
   }
 
   .sizes {
@@ -1691,6 +1920,13 @@ const isUserLoggedIn = computed(() => {
   .rangeWrapper {
     margin: 24px 0;
   }
+
+  .filtros {
+    padding: 16px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
 }
 
 @media (max-width: 480px) {
@@ -1700,6 +1936,8 @@ const isUserLoggedIn = computed(() => {
 
   .sizeList span {
     flex: 0 0 auto;
+    font-size: 12px;
+    padding: 3px 6px;
   }
 
   .row {
@@ -1711,6 +1949,19 @@ const isUserLoggedIn = computed(() => {
   .row:last-child {
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+  }
+
+  .nomeDoTerno {
+    font-size: 13px;
+  }
+
+  .preco {
+    font-size: 13px;
+  }
+
+  .stock {
+    font-size: 11px;
   }
 }
 
@@ -1725,6 +1976,7 @@ const isUserLoggedIn = computed(() => {
 @media (max-width: 359px) {
   .cards {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 </style>

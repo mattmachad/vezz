@@ -1,39 +1,61 @@
 <template>
     <section class="cards-section">
-      <h2 class="titulo">Ternos de Grife</h2>
+      <h2 class="titulo">Ternos em Destaque</h2>
   
-      <div class="cards">
+      <div v-if="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Carregando produtos em destaque...</p>
+      </div>
+
+      <div v-else-if="products.length === 0" class="no-products">
+        <p>Nenhum produto em destaque no momento.</p>
+      </div>
+
+      <div v-else class="cards" ref="carouselRef" @scroll="handleScroll">
         <div 
-          v-for="(product, index) in products" 
-          :key="index" 
+          v-for="product in displayProducts" 
+          :key="product.id" 
           class="produto"
           @click="goToProducts"
         >
           <div class="contents">
-            <img class="foto" :src="product.image" :alt="product.name" />
-  
+            <img class="foto" :src="product.picture || '/placeholder-image.jpg'" :alt="product.title" />
+    
             <div class="brand">
               <img class="vezz-logo" :src="darkModeStore.isDark ? vezzLogoWhite : vezzLogo" alt="Vezz logo" />
             </div>
-  
+    
             <div v-if="isUserLoggedIn" class="icons">
-              <img class="icon favorite" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" alt="Favoritar" @click.stop="toggleFavorite(product)" />
-              <img class="icon add" :src="darkModeStore.isDark ? addIconWhite : addIcon" alt="Adicionar" @click.stop="addToCart(product)" />
+              <img 
+                class="icon favorite" 
+                :src="isFavorite(product.id) ? favoriteIconFilled : (darkModeStore.isDark ? favoriteIconWhite : favoriteIcon)" 
+                alt="Favoritar" 
+                @click.stop="toggleFavorite(product)" 
+              />
+              <img 
+                class="icon add" 
+                :src="darkModeStore.isDark ? addIconWhite : addIcon" 
+                alt="Adicionar" 
+                @click.stop="addToCart(product)" 
+              />
             </div>
           </div>
-  
+    
           <div class="bottom">
             <div class="info">
-              <div class="name">{{ product.name }}</div>
-              <div class="price">R$ {{ product.price }}</div>
+              <div class="name">{{ product.title }}</div>
+              <div class="price">R$ {{ product.price.toFixed(2).replace('.', ',') }}</div>
             </div>
             <div class="stock">
-              <div class="quantity">{{ product.stock }} em estoque</div>
+              <div class="quantity">{{ Object.values(product.quantities).reduce((a, b) => a + b, 0) }} em estoque</div>
               <div class="sizes">
-                <a href=""><span>P</span></a>
-                <a href=""><span>M</span></a>
-                <a href=""><span>G</span></a>
-                <a href=""><span>GG</span></a>
+                <span 
+                  v-for="(quantity, size) in product.quantities" 
+                  :key="size"
+                  :class="{ unavailable: quantity === 0 }"
+                >
+                  {{ size }}
+                </span>
               </div>
             </div>
           </div>
@@ -47,71 +69,192 @@
           <span class="arrow">→</span>
         </button>
       </div>
+
+      <!-- Toast Notification -->
+      <transition name="toast">
+        <div v-if="showToastFlag" class="toast-container">
+          <transition name="badge">
+            <div v-if="addCounter > 1 && toastMessage.includes('carrinho')" class="toast-badge">
+              {{ addCounter }}x
+            </div>
+          </transition>
+          <div class="toast">
+            {{ toastMessage }}
+          </div>
+        </div>
+      </transition>
     </section>
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router'
   import { useCartStore } from '@/stores/cart'
   import { useDarkModeStore } from '@/stores/darkMode'
   import { useAuthStore } from '@/stores/auth'
-  import model1 from '@/assets/cards/model1.png'
-  import model2 from '@/assets/cards/model2.png'
-  import model3 from '@/assets/cards/model3.png'
-  import model4 from '@/assets/cards/model4.png'
+  import { useFavoritesStore } from '@/stores/favorites'
+  import api from '@/services/api'
   
   import addIcon from '@/assets/cards/add.svg'
   import addIconWhite from '@/assets/cards/add-white.svg'
-  import favoriteIcon from '@/assets/cards/favorite.svg'
-  import favoriteIconWhite from '@/assets/cards/favorite-white.svg'
-  import vezzLogo from '@/assets/cards/vezz-logo.png'
-  import vezzLogoWhite from '@/assets/cards/vezz-logo-white.svg'
+  import favoriteIcon from '@/assets/favorite.svg'
+  import favoriteIconWhite from '@/assets/favorite-white.svg'
+  import favoriteIconFilled from '@/assets/cards/favorite_filled.svg'
+  import vezzLogo from '@/assets/vezz-logo.png'
+  import vezzLogoWhite from '@/assets/vezz-logo-white.svg'
 
   const router = useRouter()
   const darkModeStore = useDarkModeStore()
   const cartStore = useCartStore()
   const authStore = useAuthStore()
+  const favoritesStore = useFavoritesStore()
+
+  // Toast state
+  const toastMessage = ref('')
+  const showToastFlag = ref(false)
+  const addCounter = ref(0)
+  let toastTimeout: ReturnType<typeof setTimeout> | null = null
+
+  const showToast = (message: string) => {
+    // If toast is already showing, just increment counter
+    if (showToastFlag.value) {
+      addCounter.value++
+      
+      // Reset the timeout
+      if (toastTimeout) {
+        clearTimeout(toastTimeout)
+      }
+      
+      toastTimeout = setTimeout(() => {
+        showToastFlag.value = false
+        addCounter.value = 0
+      }, 3000)
+    } else {
+      // First time showing toast
+      toastMessage.value = message
+      showToastFlag.value = true
+      addCounter.value = 1
+      
+      toastTimeout = setTimeout(() => {
+        showToastFlag.value = false
+        addCounter.value = 0
+      }, 3000)
+    }
+  }
 
   const isUserLoggedIn = computed(() => {
     return !!localStorage.getItem('user')
   })
 
-  interface LocalProduct {
+  interface Product {
     id: number;
-    name: string;
-    price: string;
-    stock: number;
-    image: string;
+    title: string;
+    price: number;
+    picture?: string;
+    category: string;
+    quantities: Record<string, number>;
+    detach: boolean;
   }
-  
-  const products = ref<LocalProduct[]>([
-    { id: 1, name: 'Terno Milano', price: '349,90', stock: 9, image: model1 },
-    { id: 2, name: 'Terno Preto', price: '389,99', stock: 3, image: model2 },
-    { id: 3, name: 'Terno Cinza Grafite', price: '429,50', stock: 2, image: model3 },
-    { id: 4, name: 'Terno Chumbo', price: '379,00', stock: 1, image: model4 },
-  ])
+
+  const loading = ref(true)
+  const products = ref<Product[]>([])
+
+  const carouselRef = ref<HTMLElement | null>(null)
+  const isMobile = ref(false)
+
+  const displayProducts = computed(() => {
+    return products.value
+  })
+
+  const checkMobile = () => {
+    isMobile.value = window.innerWidth <= 1024
+  }
+
+  const handleScroll = () => {
+    // Removendo a lógica de scroll infinito pois não é mais necessária
+    return
+  }
+
+  // Buscar produtos em destaque
+  const fetchProducts = async () => {
+    try {
+      loading.value = true
+      const response = await api.get('/products')
+      // Filtra apenas produtos com detach = true
+      products.value = response.data.filter((product: Product) => product.detach)
+    } catch (error) {
+      console.error('Error fetching products:', error)
+      showToast('Erro ao carregar produtos em destaque')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  onMounted(() => {
+    fetchProducts()
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', checkMobile)
+  })
 
   const goToProducts = () => {
     router.push('/products')
   }
 
-  const addToCart = (product: LocalProduct) => {
-    if (!isUserLoggedIn.value) return
+  const addToCart = (product: Product) => {
+    if (!isUserLoggedIn.value) {
+      showToast('Você precisa estar logado para adicionar produtos ao carrinho!')
+      return
+    }
     
-    cartStore.addToCart({
+    const success = cartStore.addToCart({
       id: product.id,
-      name: product.name,
-      price: parseFloat(product.price.replace(',', '.')),
+      name: product.title,
+      price: product.price,
       size: 'P',
       quantity: 1,
-      image: product.image
+      image: product.picture || ''
     })
+
+    if (success) {
+      showToast('Produto adicionado ao carrinho!')
+    }
   }
 
-  const toggleFavorite = (product: LocalProduct) => {
-    if (!isUserLoggedIn.value) return
-    // Implementar lógica de favoritos aqui
+  const toggleFavorite = (product: Product) => {
+    if (!isUserLoggedIn.value) {
+      toastMessage.value = 'Você precisa estar logado para favoritar produtos!'
+      showToastFlag.value = true
+      setTimeout(() => {
+        showToastFlag.value = false
+      }, 3000)
+      return
+    }
+
+    const isFavorited = favoritesStore.isFavorite(product.id)
+    
+    if (isFavorited) {
+      favoritesStore.removeFromFavorites(product.id)
+      toastMessage.value = 'Produto removido dos favoritos!'
+      showToastFlag.value = true
+      setTimeout(() => {
+        showToastFlag.value = false
+      }, 3000)
+    } else {
+      favoritesStore.addToFavorites(product.id)
+      toastMessage.value = 'Produto adicionado aos favoritos!'
+      showToastFlag.value = true
+      setTimeout(() => {
+        showToastFlag.value = false
+      }, 3000)
+    }
+  }
+
+  const isFavorite = (productId: number) => {
+    return favoritesStore.isFavorite(productId)
   }
   </script>
   
@@ -126,6 +269,39 @@
     transition: background-color 0.3s;
   }
   
+  .loading,
+  .no-products {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-color);
+    text-align: center;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--text-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading p,
+  .no-products p {
+    font-size: 16px;
+    color: var(--text-color);
+    opacity: 0.8;
+  }
+
   .titulo {
     text-align: center;
     font-size: 24px;
@@ -139,14 +315,14 @@
   }
   
   .cards {
-    display: flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 72px;
-    justify-content: center;
+    padding: 16px 0;
   }
   
   .produto {
-    width: 280px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -240,27 +416,58 @@
     background: var(--card-bg);
     border-radius: 0 0 16px 16px;
     transition: color 0.3s, background-color 0.3s;
+    gap: 8px;
   }
   
   .info, .stock {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
   }
   
-  .name, .price, .quantity {
+  .name {
     font-weight: 500;
     letter-spacing: 1.25px;
     color: var(--text-color);
     transition: color 0.3s;
+    flex: 1;
+    word-wrap: break-word;
+    min-width: 0;
+    line-height: 1.4;
+  }
+  
+  .price {
+    font-weight: 500;
+    letter-spacing: 1.25px;
+    color: var(--text-color);
+    transition: color 0.3s;
+    white-space: nowrap;
+  }
+  
+  .quantity {
+    font-weight: 500;
+    letter-spacing: 1.25px;
+    color: var(--text-color);
+    transition: color 0.3s;
+    white-space: nowrap;
+  }
+  
+  .sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
   }
   
   .sizes span {
-    margin-left: 12px;
+    margin-left: 0;
     font-weight: 500;
     letter-spacing: 1.25px;
     color: var(--text-color);
     transition: color 0.3s;
+    white-space: nowrap;
   }
   
   .sizes .unavailable {
@@ -327,6 +534,268 @@
 
   .view-all-btn:hover .arrow {
     transform: translateX(4px);
+  }
+
+  /* Toast Styles */
+  .toast-container {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast {
+    background: #333;
+    color: white;
+    padding: 16px 32px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+  }
+
+  .toast-badge {
+    background: #439cd3;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: bounceIn 0.3s ease;
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .toast-enter-from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+
+  .toast-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+
+  .badge-enter-active,
+  .badge-leave-active {
+    transition: all 0.2s ease;
+  }
+
+  .badge-enter-from,
+  .badge-leave-to {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  .icon.favorite {
+    transition: transform 0.2s ease;
+  }
+
+  .icon.favorite:hover {
+    transform: scale(1.1);
+  }
+
+  /* Responsividade */
+  @media (max-width: 1280px) {
+    .cards-section {
+      padding: 14px 48px;
+    }
+
+    .cards {
+      gap: 48px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .cards-section {
+      padding: 14px 32px;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 32px;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      scroll-snap-type: x mandatory;
+      padding: 16px;
+      margin: 0 -16px;
+    }
+
+    .cards::-webkit-scrollbar {
+      display: none;
+    }
+
+    .produto {
+      flex: 0 0 auto;
+      width: 240px;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cards-section {
+      padding: 14px 24px;
+    }
+
+    .cards {
+      gap: 24px;
+      padding: 16px 24px;
+      margin: 0 -24px;
+    }
+
+    .produto {
+      width: 220px;
+    }
+
+    .titulo {
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .contents {
+      height: 280px;
+    }
+
+    .bottom {
+      padding: 12px;
+    }
+
+    .name, .price {
+      font-size: 13px;
+    }
+
+    .quantity {
+      font-size: 12px;
+    }
+
+    .sizes span {
+      font-size: 12px;
+    }
+
+    .view-all-btn {
+      padding: 12px 24px;
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .cards-section {
+      padding: 14px 16px;
+    }
+
+    .cards {
+      gap: 16px;
+      padding: 16px;
+      margin: 0 -16px;
+    }
+
+    .produto {
+      width: 200px;
+    }
+
+    .titulo {
+      font-size: 18px;
+    }
+
+    .contents {
+      height: 260px;
+    }
+
+    .icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .icon img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .vezz-logo {
+      width: 32px;
+    }
+
+    .bottom {
+      padding: 10px;
+      gap: 6px;
+    }
+
+    .info, .stock {
+      gap: 8px;
+    }
+
+    .name, .price {
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .quantity {
+      font-size: 11px;
+    }
+
+    .sizes span {
+      font-size: 11px;
+      padding: 2px 4px;
+    }
+
+    .view-all-container {
+      margin-top: 32px;
+    }
+
+    .view-all-btn {
+      padding: 10px 20px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .produto {
+      width: 180px;
+    }
+
+    .contents {
+      height: 240px;
+    }
+  }
+
+  /* Melhorias na rolagem horizontal para dispositivos touch */
+  @media (hover: none) and (max-width: 1024px) {
+    .cards {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      scroll-padding: 0 16px;
+    }
+
+    .produto {
+      scroll-snap-align: start;
+    }
   }
   </style>
   
