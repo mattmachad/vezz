@@ -19,7 +19,7 @@ async function bootstrap() {
     console.log(`🚀 Aplicação rodando na porta ${process.env.PORT ?? 3000}`);
   } catch (error) {
     console.error('❌ Erro ao conectar no banco:', error);
-    process.exit(1);
+    throw error;
   }
 }
 

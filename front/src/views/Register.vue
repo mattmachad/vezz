@@ -85,6 +85,8 @@ async function handleSubmit() {
   display: flex;
   min-height: 100vh;
   font-family: Arial, sans-serif;
+  background: #fff;
+  color: #212121;
 }
 
 .login-left {
@@ -100,6 +102,7 @@ async function handleSubmit() {
   justify-content: center;
   align-items: center;
   background-color: #fff;
+  color: #212121;
 }
 
 .form-box {

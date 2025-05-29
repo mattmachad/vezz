@@ -84,6 +84,8 @@
     display: flex;
     min-height: 100vh;
     font-family: Arial, sans-serif;
+    background: #fff;
+    color: #212121;
   }
   
   .login-left {
@@ -99,6 +101,7 @@
     justify-content: center;
     align-items: center;
     background-color: #fff;
+    color: #212121;
   }
   
   .form-box {
