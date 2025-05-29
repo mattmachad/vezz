@@ -127,8 +127,10 @@ const addToCart = () => {
     quantity: quantity.value
   }
 
-  cartStore.addToCart(item)
-  router.push('/checkout')
+  const success = cartStore.addToCart(item)
+  if (success) {
+    router.push('/checkout')
+  }
 }
 
 watch(selectedSize, (newSize: string) => {

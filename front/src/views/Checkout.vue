@@ -288,6 +288,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
 import type { CartItem } from '@/stores/cart'
 import api from '@/services/api'
 
@@ -306,6 +307,7 @@ interface ProductState {
 
 const router = useRouter()
 const cartStore = ref()
+const authStore = useAuthStore()
 const productsDetails = ref<Map<number, ProductState>>(new Map())
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -321,6 +323,16 @@ const showEmptyCartMessage = () => {
 
 onMounted(async () => {
   try {
+    // Check if user is logged in
+    if (!authStore.isLoggedIn) {
+      toastMessage.value = 'Você precisa estar logado para acessar o carrinho'
+      showToast.value = true
+      setTimeout(() => {
+        router.push('/login')
+      }, 1500)
+      return
+    }
+    
     cartStore.value = useCartStore()
     // Only redirect if cart is empty
     if (!cartStore.value?.items?.length) {
@@ -755,8 +767,8 @@ const finishOrder = async () => {
   }
 
   try {
-    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]')
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const cartItems = cartStore.value?.items || []
+    const user = authStore.currentUser
 
     if (!cartItems.length) {
       toastMessage.value = 'Carrinho vazio!'
@@ -767,6 +779,7 @@ const finishOrder = async () => {
     if (!user || !user.id) {
       toastMessage.value = 'Usuário não autenticado!'
       showToast.value = true
+      router.push('/login')
       return
     }
 
@@ -788,9 +801,9 @@ const finishOrder = async () => {
     showToast.value = true
 
     // Limpa o carrinho e redireciona
-    localStorage.removeItem('cart')
+    cartStore.value.clearCart()
     setTimeout(() => {
-      router.push('/orders') // ou qualquer rota de sucesso
+      router.push('/ordersuccess')
     }, 2000)
 
   } catch (error) {
@@ -799,7 +812,6 @@ const finishOrder = async () => {
     showToast.value = true
   }
 }
-
 
 const continueShopping = () => {
   router.push('/products')

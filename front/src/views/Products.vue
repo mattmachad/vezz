@@ -181,10 +181,10 @@
             <div v-for="product in paginatedProducts" :key="product.id" :class="$style.produto01">
               <div :class="$style.imageWrapper">
                 <img :class="$style.fotoIcon" :alt="product.name" :src="product.images[0]" />
-                <button :class="$style.favoriteBtn" @click="toggleFavorite(product.id)">
+                <button v-if="isUserLoggedIn" :class="$style.favoriteBtn" @click="toggleFavorite(product.id)">
                   <img :src="isFavorite(product.id) ? favoriteIconFilled : favoriteIcon" alt="Favoritar" />
                 </button>
-                <button :class="$style.addBtn" @click="addToCart(product)">
+                <button v-if="isUserLoggedIn" :class="$style.addBtn" @click="addToCart(product)">
                   <img :src="addIcon" alt="Adicionar" />
                 </button>
               </div>
@@ -233,6 +233,7 @@ import { storeToRefs } from 'pinia'
 import api from '../services/api'
 import type { Product, DisplayProduct } from '../types/product'
 import { useCartStore } from '@/stores/cart'
+import { useFavoritesStore } from '@/stores/favorites'
 import type { CartItem } from '@/stores/cart'
 
 import addIcon from '../assets/cards/add.svg'
@@ -262,6 +263,7 @@ const selectedFilters = ref({
 const rawProducts = ref<Product[]>([])
 const loading = ref(true)
 const cart = ref<ReturnType<typeof useCartStore> | null>(null)
+const favoritesStore = useFavoritesStore()
 
 const priceRange = ref({
   min: 0,
@@ -311,8 +313,6 @@ const products = computed<DisplayProduct[]>(() => {
     }
   })
 })
-
-
 
 const sortOptions = [
   { value: 'featured', label: 'Mais Procurados' },
@@ -422,18 +422,11 @@ const loadMore = () => {
 
 const viewMode = ref<'grid' | 'list'>('grid')
 
-const favorites = ref<number[]>([])
-
 const toggleFavorite = (productId: number) => {
-  const index = favorites.value.indexOf(productId)
-  if (index === -1) {
-    favorites.value.push(productId)
-  } else {
-    favorites.value.splice(index, 1)
-  }
+  favoritesStore.addToFavorites(productId)
 }
 
-const isFavorite = (productId: number) => favorites.value.includes(productId)
+const isFavorite = (productId: number) => favoritesStore.isFavorite(productId)
 
 const showToast = (message: string) => {
   toastMessage.value = message
@@ -567,7 +560,7 @@ const addToCart = (product: DisplayProduct) => {
       return
     }
 
-    cart.value.addToCart({
+    const success = cart.value.addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
@@ -575,7 +568,10 @@ const addToCart = (product: DisplayProduct) => {
       quantity: 1,
       image: product.images[0]
     })
-    showToast('Produto adicionado ao carrinho!')
+    
+    if (success) {
+      showToast('Produto adicionado ao carrinho!')
+    }
   } catch (error) {
     console.error('Failed to add to cart:', error)
     showToast('Erro ao adicionar ao carrinho')
@@ -584,6 +580,10 @@ const addToCart = (product: DisplayProduct) => {
 
 const toastMessage = ref('')
 const showToastFlag = ref(false)
+
+const isUserLoggedIn = computed(() => {
+  return !!localStorage.getItem('user')
+})
 </script>
 
 <style scoped>

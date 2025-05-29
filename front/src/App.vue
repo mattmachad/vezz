@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { useDarkModeStore } from '@/stores/darkMode'
+import { useAuthStore } from '@/stores/auth'
 import NavBar from './components/NavBar.vue'
 import HeroSection from './components/HeroSection.vue'
 import ProductCards from './components/ProductCards.vue'
@@ -14,12 +15,15 @@ import '@/assets/styles/theme.css'
 const route = useRoute()
 const cart = ref()
 const darkModeStore = useDarkModeStore()
+const authStore = useAuthStore()
 
 onMounted(() => {
   // Initialize store after app is mounted
   cart.value = useCartStore()
   // Initialize dark mode
   darkModeStore.init()
+  // Initialize auth store
+  authStore.init()
 })
 </script>
 
