@@ -30,7 +30,7 @@
             <router-link to="/about" class="nav-link" @click="closeMobileMenu">SOBRE</router-link>
             <div class="mobile-icons">
               <router-link to="/" class="mobile-link" @click="closeMobileMenu">Buscar</router-link>
-              <router-link to="/" class="mobile-link" @click="closeMobileMenu">Favoritos</router-link>
+              <router-link to="/wishlist" class="mobile-link" @click="closeMobileMenu">Favoritos</router-link>
               <router-link to="/login" class="mobile-link" @click="closeMobileMenu">Perfil</router-link>
               <router-link to="/checkout" class="mobile-link" @click="closeMobileMenu">Sacola</router-link>
             </div>
@@ -45,7 +45,7 @@
         <router-link to="/">
           <img class="icon" alt="Buscar" :src="darkModeStore.isDark ? searchIconWhite : searchIcon" />
         </router-link>
-        <router-link to="/">
+        <router-link to="/wishlist">
           <img class="icon" alt="Favoritos" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" />
         </router-link>
         <router-link to="/login">

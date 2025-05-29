@@ -8,6 +8,7 @@ import Register from '@/views/Register.vue'
 import About from '@/views/About.vue'
 import LookBook from '@/views/LookBook.vue'
 import OrderSuccess from '@/views/OrderSuccess.vue'
+import WishList from '@/views/WishList.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -56,6 +57,11 @@ const router = createRouter({
             path: '/ordersuccess',
             name: 'ordersuccess',
             component: OrderSuccess
+        },
+        {
+            path: '/wishlist',
+            name: 'wishlist',
+            component: WishList
         }
     ]
 })
