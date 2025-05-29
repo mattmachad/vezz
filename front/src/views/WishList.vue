@@ -81,11 +81,11 @@
                   <div :class="$style.contentsRight">
                     <div :class="$style.infoProduct">
                       <div :class="$style.textLeft">
-                        <div :class="$style.nomeDoTerno">{{ product.title }}</div>
+                        <div :class="$style.nomeDoTerno">{{ product.name }}</div>
                         <div :class="$style.textBottom">
                           <div :class="$style.div">R$ {{ product.price.toFixed(2).replace('.', ',') }}</div>
                           <div :class="$style.div1">|</div>
-                          <div :class="$style.emEstoque">{{ product.stock > 0 ? 'Em Estoque' : 'Fora de Estoque' }}</div>
+                          <div :class="$style.emEstoque">{{ product.inStock ? 'Em Estoque' : 'Fora de Estoque' }}</div>
                         </div>
                       </div>
                       <div :class="$style.favoriteParent">
@@ -106,10 +106,10 @@
           
           <div v-if="filteredAndSortedProducts.length === 0" :class="$style.noProducts">
             <img :src="emptyStateIcon" alt="Nenhum produto" />
-            <p>Parece que você não tem nenhum produto favoritado :(</p>
-            <router-link to="/products" :class="$style.catalogBtn">
-              Voltar para catálogo
-            </router-link>
+            <p>Nenhum produto encontrado</p>
+            <button v-if="searchQuery" @click="searchQuery = ''" :class="$style.clearSearchBtn">
+              Limpar Busca
+            </button>
           </div>
         </div>
       </div>
@@ -118,11 +118,8 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import NavBar from '@/components/NavBar.vue'
-import { storeToRefs } from 'pinia'
-import { useFavoritesStore } from '@/stores/favorites'
-import api from '@/services/api'
 import swapVertIcon from '../assets/swap_vert.svg'
 import keyboardArrowDownIcon from '../assets/keyboard_arrow_down.svg'
 import favoriteIcon from '../assets/cards/favorite.svg'
@@ -144,24 +141,37 @@ export default {
     const viewMode = ref('grid')
     const selectedSort = ref('featured')
     const showSortDropdown = ref(false)
-    const favoritesStore = useFavoritesStore()
     
     // Produtos mockados (substituir por dados reais da store/API)
-    const rawProducts = ref([])
-    
-    const fetchProducts = async () => {
-      try {
-        const response = await api.get('/products')
-        rawProducts.value = response.data
-      } catch (error) {
-        console.error('Error fetching products:', error)
+    const wishlistProducts = ref([
+      {
+        id: 1,
+        name: 'Terno Clássico Preto',
+        price: 899.99,
+        image: vezzLogo,
+        inStock: true,
+        category: 'Ternos',
+        dateAdded: new Date('2024-01-15')
+      },
+      {
+        id: 2,
+        name: 'Terno Slim Azul Marinho',
+        price: 1299.99,
+        image: vezzLogo,
+        inStock: true,
+        category: 'Ternos',
+        dateAdded: new Date('2024-01-10')
+      },
+      {
+        id: 3,
+        name: 'Terno Executivo Cinza',
+        price: 799.99,
+        image: vezzLogo,
+        inStock: false,
+        category: 'Ternos',
+        dateAdded: new Date('2024-01-20')
       }
-    }
-
-    // Computed para filtrar produtos favoritados
-    const wishlistProducts = computed(() => {
-      return rawProducts.value.filter(product => favoritesStore.isFavorite(product.id))
-    })
+    ])
     
     // Opções de ordenação
     const sortOptions = [
@@ -182,7 +192,7 @@ export default {
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(product => 
-          product.title.toLowerCase().includes(query) ||
+          product.name.toLowerCase().includes(query) ||
           product.category.toLowerCase().includes(query)
         )
       }
@@ -197,16 +207,16 @@ export default {
           sorted.sort((a, b) => b.price - a.price)
           break
         case 'name-asc':
-          sorted.sort((a, b) => a.title.localeCompare(b.title))
+          sorted.sort((a, b) => a.name.localeCompare(b.name))
           break
         case 'name-desc':
-          sorted.sort((a, b) => b.title.localeCompare(a.title))
+          sorted.sort((a, b) => b.name.localeCompare(a.name))
           break
         case 'date-desc':
-          sorted.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
+          sorted.sort((a, b) => b.dateAdded - a.dateAdded)
           break
         case 'date-asc':
-          sorted.sort((a, b) => new Date(a.dateAdded) - new Date(b.dateAdded))
+          sorted.sort((a, b) => a.dateAdded - b.dateAdded)
           break
       }
       
@@ -215,13 +225,11 @@ export default {
     
     // Função para remover da wishlist
     const removeFromWishlist = (productId) => {
-      favoritesStore.removeFromFavorites(productId)
+      const index = wishlistProducts.value.findIndex(p => p.id === productId)
+      if (index !== -1) {
+        wishlistProducts.value.splice(index, 1)
+      }
     }
-
-    // Fetch products when component mounts
-    onMounted(() => {
-      fetchProducts()
-    })
     
     return {
       searchQuery,
@@ -676,10 +684,9 @@ export default {
 .noProducts p {
   font-size: 18px;
   margin-bottom: 24px;
-  color: var(--text-color);
 }
 
-.catalogBtn {
+.clearSearchBtn {
   background: #000;
   color: white;
   border: none;
@@ -689,11 +696,9 @@ export default {
   font-weight: 500;
   letter-spacing: 1.25px;
   transition: background 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
 }
 
-.catalogBtn:hover {
+.clearSearchBtn:hover {
   background: #333;
 }
 
