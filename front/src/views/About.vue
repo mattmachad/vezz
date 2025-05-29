@@ -48,6 +48,47 @@
     margin-bottom: 50px;
   }
   
+  @media (max-width: 1200px) {
+    .product {
+      padding: 32px 24px 0;
+      font-size: 28px;
+    }
+    .aVezzStoreContainer {
+      width: 90vw;
+      max-width: 800px;
+    }
+  }
+  
+  @media (max-width: 800px) {
+    .product {
+      padding: 24px 8px 0;
+      font-size: 22px;
+    }
+    .aVezzStoreContainer {
+      width: 100vw;
+      max-width: 100%;
+      padding: 0 8px;
+    }
+    .fotos01 {
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 500px) {
+    .product {
+      padding: 12px 2vw 0;
+      font-size: 16px;
+      gap: 18px;
+    }
+    .aVezzStoreContainer {
+      padding: 0 2vw;
+    }
+    .sobre {
+      font-size: 22px;
+      line-height: 32px;
+    }
+  }
+  
   .sobre {
     position: relative;
     letter-spacing: 1.25px;
