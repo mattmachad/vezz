@@ -102,5 +102,119 @@
     box-shadow: 0 4px 12px var(--nav-shadow);
     transition: box-shadow 0.3s;
   }
+
+  /* Responsividade */
+  @media (max-width: 1440px) {
+    .sobre {
+      padding: 64px 120px;
+      gap: 48px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .sobre {
+      padding: 48px 64px;
+      gap: 32px;
+    }
+
+    .left {
+      max-width: 600px;
+    }
+
+    .titulo {
+      font-size: 18px;
+      line-height: 40px;
+    }
+
+    .imagem {
+      max-width: 400px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sobre {
+      flex-direction: column;
+      padding: 40px 32px;
+      gap: 32px;
+      text-align: center;
+    }
+
+    .left {
+      max-width: 100%;
+      align-items: center;
+    }
+
+    .titulo {
+      text-align: center;
+      line-height: 32px;
+    }
+
+    .descricao {
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .saiba-mais {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .imagem {
+      max-width: 100%;
+      height: 300px;
+      object-position: top;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sobre {
+      padding: 32px 16px;
+      gap: 24px;
+    }
+
+    .titulo {
+      font-size: 16px;
+      line-height: 28px;
+    }
+
+    .descricao {
+      font-size: 13px;
+      gap: 16px;
+    }
+
+    .saiba-mais {
+      height: 48px;
+      padding: 0 32px;
+      font-size: 13px;
+    }
+
+    .imagem {
+      height: 250px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .sobre {
+      padding: 24px 16px;
+    }
+
+    .titulo {
+      font-size: 15px;
+      line-height: 24px;
+    }
+
+    .descricao {
+      font-size: 12px;
+    }
+
+    .saiba-mais {
+      height: 44px;
+      font-size: 12px;
+    }
+
+    .imagem {
+      height: 200px;
+    }
+  }
   </style>
   

@@ -80,7 +80,7 @@ export class ProductsService implements OnModuleInit {
     const count: number = await this.productRepository.count();
     if (count > 2) return;
 
-    const sampleProducts: CreateProductDto[] = [
+    const sampleProducts: any[] = [
       {
         title: 'Terno Milano',
         price: 349.9,
@@ -88,7 +88,8 @@ export class ProductsService implements OnModuleInit {
         color: 'preto',
         gender: Gender.MALE,
         category: Category.CLOTHES,
-        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502443/model4_wyckvu.png'
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502443/model4_wyckvu.png',
+        detach: true
       },
       {
         title: 'Terno Branco Premium',
@@ -97,7 +98,8 @@ export class ProductsService implements OnModuleInit {
         color: 'branco',
         gender: Gender.MALE,
         category: Category.CLOTHES,
-        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502426/model3_mirtub.png'
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502426/model3_mirtub.png',
+        detach: true
       },
       {
         title: 'Camisa Social Azul',
@@ -106,7 +108,8 @@ export class ProductsService implements OnModuleInit {
         color: 'azul',
         gender: Gender.MALE,
         category: Category.CLOTHES,
-        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502410/model2_ojqqym.png'
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502410/model2_ojqqym.png',
+        detach: true
       },
       {
         title: 'Calça Social Cinza',
@@ -115,7 +118,8 @@ export class ProductsService implements OnModuleInit {
         color: 'cinza',
         gender: Gender.MALE,
         category: Category.CLOTHES,
-        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502289/model1_e9dt0p.png'
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502289/model1_e9dt0p.png',
+        detach: true
       },
       {
         title: 'Sapato Oxford Preto',
