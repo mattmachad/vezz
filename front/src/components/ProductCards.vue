@@ -13,12 +13,12 @@
             <img class="foto" :src="product.image" :alt="product.name" />
   
             <div class="brand">
-              <img class="vezz-logo" :src="vezzLogo" alt="Vezz logo" />
+              <img class="vezz-logo" :src="darkModeStore.isDark ? vezzLogoWhite : vezzLogo" alt="Vezz logo" />
             </div>
   
             <div class="icons">
-              <img class="icon favorite" :src="favoriteIcon" alt="Favoritar" />
-              <img class="icon add" :src="addIcon" alt="Adicionar" />
+              <img class="icon favorite" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" alt="Favoritar" />
+              <img class="icon add" :src="darkModeStore.isDark ? addIconWhite : addIcon" alt="Adicionar" />
             </div>
           </div>
   
@@ -54,16 +54,21 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router'
   import { useCartStore } from '@/stores/cart'
+  import { useDarkModeStore } from '@/stores/darkMode'
   import model1 from '@/assets/cards/model1.png'
   import model2 from '@/assets/cards/model2.png'
   import model3 from '@/assets/cards/model3.png'
   import model4 from '@/assets/cards/model4.png'
   
   import addIcon from '@/assets/cards/add.svg'
+  import addIconWhite from '@/assets/cards/add-white.svg'
   import favoriteIcon from '@/assets/cards/favorite.svg'
+  import favoriteIconWhite from '@/assets/cards/favorite-white.svg'
   import vezzLogo from '@/assets/cards/vezz-logo.png'
+  import vezzLogoWhite from '@/assets/cards/vezz-logo-white.svg'
 
   const router = useRouter()
+  const darkModeStore = useDarkModeStore()
 
   interface LocalProduct {
     id: number;
@@ -102,9 +107,10 @@
     width: 100%;
     padding: 14px 72px;
     box-sizing: border-box;
-    background-color: #fff;
+    background-color: var(--bg-color);
     font-family: Roboto, sans-serif;
     margin-bottom: 6vh;
+    transition: background-color 0.3s;
   }
   
   .titulo {
@@ -113,9 +119,10 @@
     font-weight: 500;
     letter-spacing: 1.25px;
     line-height: 16px;
-    color: #000;
+    color: var(--text-color);
     margin-bottom: 18px;
     text-align: left;
+    transition: color 0.3s;
   }
   
   .cards {
@@ -135,13 +142,13 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 16px;
     overflow: hidden;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background: var(--card-bg);
+    box-shadow: 0 2px 8px var(--nav-shadow);
   }
   
   .produto:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 24px var(--nav-shadow);
   }
   
   .contents {
@@ -189,14 +196,14 @@
   .icon {
     width: 36px;
     height: 36px;
-    background: #fff;
+    background: var(--card-bg);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px var(--nav-shadow);
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, background-color 0.3s;
     padding: 6px;
   }
   
@@ -209,20 +216,17 @@
     height: 24px;
   }
   
-  .icon.add img {
-    filter: brightness(0);
-  }
-  
   .bottom {
     width: 100%;
     display: flex;
     flex-direction: column;
     text-align: left;
-    color: #212121;
+    color: var(--text-color);
     font-size: 14px;
     padding: 16px;
-    background: white;
+    background: var(--card-bg);
     border-radius: 0 0 16px 16px;
+    transition: color 0.3s, background-color 0.3s;
   }
   
   .info, .stock {
@@ -234,17 +238,21 @@
   .name, .price, .quantity {
     font-weight: 500;
     letter-spacing: 1.25px;
+    color: var(--text-color);
+    transition: color 0.3s;
   }
   
   .sizes span {
     margin-left: 12px;
     font-weight: 500;
     letter-spacing: 1.25px;
-    color: #212121;
+    color: var(--text-color);
+    transition: color 0.3s;
   }
   
   .sizes .unavailable {
-    color: #bebebe;
+    color: var(--border-color);
+    transition: color 0.3s;
   }
 
   /* View All Button */
@@ -256,8 +264,8 @@
 
   .view-all-btn {
     background: transparent;
-    color: #212121;
-    border: 2px solid #212121;
+    color: var(--text-color);
+    border: 2px solid var(--text-color);
     padding: 16px 32px;
     font-size: 14px;
     font-weight: 600;
@@ -280,7 +288,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: #212121;
+    background: var(--text-color);
     transition: left 0.3s ease;
     z-index: -1;
   }
@@ -290,9 +298,9 @@
   }
 
   .view-all-btn:hover {
-    color: white;
+    color: var(--bg-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(33, 33, 33, 0.2);
+    box-shadow: 0 4px 12px var(--nav-shadow);
   }
 
   .view-all-btn:active {

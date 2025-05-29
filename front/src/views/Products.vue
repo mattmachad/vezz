@@ -749,7 +749,7 @@ const showToastFlag = ref(false)
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 48px 71px;
+  padding: 48px 24px;
   box-sizing: border-box;
   gap: 32px;
   text-align: left;
@@ -925,7 +925,7 @@ const showToastFlag = ref(false)
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 32px;
   margin-bottom: 64px;
 }
@@ -1087,7 +1087,47 @@ const showToastFlag = ref(false)
 </style>
 
 <style module>
-.filtros { width: 280px; color: #555 }
+:global(:root) {
+  --text-color: #212121;
+  --text-secondary: #666;
+  --text-disabled: #bebebe;
+  --border-color: #ddd;
+  --card-bg: #fff;
+  --icon-filter: none;
+  --input-bg: #f1f1f1;
+  --primary-color: #439cd3;
+  --bg-color: #fff;
+  --size-available-bg: rgba(67, 156, 211, 0.1);
+  --size-unavailable-bg: rgba(0, 0, 0, 0.05);
+  --slider-bg: #ddd;
+  --thumb-bg: #fff;
+  --thumb-shadow: rgba(0, 0, 0, 0.2);
+  --heart-color: #ff4444;
+}
+
+:global(:root.dark-mode) {
+  --text-color: #fff;
+  --text-secondary: #aaa;
+  --text-disabled: #666;
+  --border-color: #444;
+  --card-bg: #2a2a2a;
+  --icon-filter: invert(1);
+  --input-bg: #333;
+  --primary-color: #439cd3;
+  --bg-color: #212121;
+  --size-available-bg: rgba(67, 156, 211, 0.2);
+  --size-unavailable-bg: rgba(255, 255, 255, 0.05);
+  --slider-bg: #444;
+  --thumb-bg: #2a2a2a;
+  --thumb-shadow: rgba(0, 0, 0, 0.4);
+  --heart-color: #ff4444;
+}
+
+.filtros { 
+  width: 280px; 
+  color: #555;
+  transition: width 0.3s ease;
+}
 
 .contents { display: flex; flex-direction: column; gap: 32px }
 
@@ -1098,20 +1138,23 @@ const showToastFlag = ref(false)
   padding-bottom: 8px;
   cursor: pointer;
   position: relative;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.3s;
 }
 
 .title {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 1px;
-  color: #666;
+  color: var(--text-color);
+  transition: color 0.3s;
 }
 
 .icon {
   width: 24px;
   height: 24px;
   transition: transform 0.3s ease;
+  filter: var(--icon-filter);
 }
 
 .head::after {
@@ -1124,10 +1167,13 @@ const showToastFlag = ref(false)
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
-  color: #999;
+  color: var(--text-secondary);
   cursor: pointer;
+  transition: color 0.3s;
 }
-.option:hover { color: #000 }
+.option:hover { 
+  color: var(--text-color);
+}
 .radio { width: 16px }
 
 .label { font-size: 14px }
@@ -1219,14 +1265,16 @@ const showToastFlag = ref(false)
 .input {
   width: 130px;
   border-radius: 8px;
-  background-color: #f1f1f1;
+  background-color: var(--input-bg);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
   padding: 8px;
   box-sizing: border-box;
-  color: #212121;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 .divider {
@@ -1244,17 +1292,19 @@ const showToastFlag = ref(false)
   align-self: stretch;
   position: relative;
   border-radius: 2222px;
-  background-color: #d9d9d9;
+  background-color: var(--border-color);
   height: 4px;
+  transition: background-color 0.3s;
 }
 
 .rangeWrapper {
   position: relative;
   width: 100%;
   height: 4px;
-  background: #d9d9d9;
+  background: var(--slider-bg);
   border-radius: 2222px;
   margin: 8px 0 24px;
+  transition: background-color 0.3s;
 }
 
 .rangeWrapper::before {
@@ -1284,14 +1334,15 @@ const showToastFlag = ref(false)
   appearance: none;
   width: 16px;
   height: 16px;
-  background: #fff;
-  border: 2px solid #439cd3;
+  background: var(--thumb-bg);
+  border: 2px solid var(--primary-color);
   border-radius: 50%;
   cursor: grab;
   pointer-events: all;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px var(--thumb-shadow);
   position: relative;
   z-index: 2;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .rangeWrapper input[type="range"]::-webkit-slider-runnable-track {
@@ -1305,7 +1356,11 @@ const showToastFlag = ref(false)
   display: flex;
   flex-direction: column;
   font-family: 'Roboto', sans-serif;
-  color: #212121;
+  color: var(--text-color);
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 16px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .imageWrapper {
@@ -1347,15 +1402,15 @@ const showToastFlag = ref(false)
   position: absolute;
   bottom: 8px;
   width: 36px; height: 36px;
-  background: #fff;
-  border: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px var(--thumb-shadow);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.3s, border-color 0.3s;
 }
 .favoriteBtn { 
   left: 8px;
@@ -1366,6 +1421,16 @@ const showToastFlag = ref(false)
 .favoriteBtn:hover,
 .addBtn:hover {
   transform: scale(1.1);
+}
+
+.favoriteBtn img,
+.addBtn img {
+  filter: var(--icon-filter);
+  transition: filter 0.3s;
+}
+
+.favoriteBtn img {
+  filter: none;
 }
 
 .bottom {
@@ -1385,17 +1450,22 @@ const showToastFlag = ref(false)
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
+  color: var(--text-color);
+  transition: color 0.3s;
 }
 
 .preco {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
+  color: var(--text-color);
+  transition: color 0.3s;
 }
 
 .stock {
   font-size: 12px;
-  color: #4b4b4b;
+  color: var(--text-secondary);
+  transition: color 0.3s;
 }
 
 .sizeList {
@@ -1407,14 +1477,20 @@ const showToastFlag = ref(false)
   font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #212121;
+  color: var(--text-color);
   cursor: default;
-  padding: 2px 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--size-available-bg);
+  transition: all 0.3s ease;
 }
 
 .sizeList .unavailable {
-  color: #bebebe;
+  color: var(--text-disabled);
   font-weight: 400;
+  opacity: 0.7;
+  text-decoration: line-through;
+  background: var(--size-unavailable-bg);
 }
 
 .inputWrapper {
@@ -1472,5 +1548,245 @@ const showToastFlag = ref(false)
 }
 .clearBtn:hover { 
   background: #333;
+}
+</style>
+
+<style scoped>
+@media (max-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .banner {
+    padding: 10px 24px;
+  }
+
+  .explorar-todos-itens {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product {
+    flex-direction: column;
+  }
+
+  .filtros {
+    width: 100% !important;
+    margin-bottom: 24px;
+  }
+
+  .products-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-container {
+    max-width: none;
+  }
+
+  .header-right {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .ordenacao {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sort-dropdown {
+    width: 100%;
+    right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .banner {
+    height: 200px;
+    padding: 10px 16px;
+  }
+
+  .explorar-todos-itens {
+    font-size: 32px;
+  }
+
+  .product {
+    padding: 24px 16px;
+  }
+
+  .cards.list :deep(.produto01) {
+    flex-direction: column;
+    max-height: none;
+    gap: 16px;
+  }
+
+  .cards.list :deep(.imageWrapper) {
+    width: 100%;
+    height: auto;
+    padding-top: 100%;
+  }
+
+  .cards.list :deep(.bottom) {
+    width: 100%;
+  }
+}
+
+/* Ajustes para o menu de filtros em telas pequenas */
+@media (max-width: 768px) {
+  .contents {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+
+  .clearBtn {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Ajustes para o cabeçalho em telas muito pequenas */
+@media (max-width: 480px) {
+  .header-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-toggle {
+    justify-content: center;
+  }
+
+  .product-count {
+    text-align: center;
+  }
+
+  .ordenacao {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ordenar-por {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+/* Ajustes para os botões de ação em telas pequenas */
+@media (max-width: 640px) {
+  .favoriteBtn,
+  .addBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .favoriteBtn img,
+  .addBtn img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Ajustes para o slider de preços em telas pequenas */
+@media (max-width: 480px) {
+  .faixaDeValor {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .input {
+    width: 100%;
+  }
+
+  .mnimo {
+    width: 100%;
+  }
+}
+
+/* Melhorias na visualização da lista em telas médias */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .cards.list :deep(.produto01) {
+    padding: 12px;
+  }
+
+  .cards.list :deep(.imageWrapper) {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* Ajustes responsivos para os elementos do módulo */
+.filtros { 
+  width: 280px; 
+  color: #555;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .group {
+    margin-bottom: 16px;
+  }
+
+  .colors {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .sizes {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .sizeBox {
+    flex: 0 0 auto;
+  }
+
+  .rangeWrapper {
+    margin: 24px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .sizeList {
+    flex-wrap: wrap;
+  }
+
+  .sizeList span {
+    flex: 0 0 auto;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .row:last-child {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Ajustes para o grid de produtos */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 32px;
+  margin-bottom: 64px;
+}
+
+@media (max-width: 359px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -5,6 +5,9 @@ import ProductDetails from '@/views/ProductDetails.vue'
 import Checkout from '@/views/Checkout.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
+import About from '@/views/About.vue'
+import LookBook from '@/views/LookBook.vue'
+import OrderSuccess from '@/views/OrderSuccess.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -38,8 +41,23 @@ const router = createRouter({
             path: '/register',
             name: 'register',
             component: Register
+        },
+        {
+            path: '/about',
+            name: 'about',
+            component: About
+        },
+        {
+            path: '/lookbook',
+            name: 'lookbook',
+            component: LookBook
+        },
+        {
+            path: '/ordersuccess',
+            name: 'ordersuccess',
+            component: OrderSuccess
         }
     ]
 })
 
-export default router 
+export default router;

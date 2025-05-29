@@ -13,7 +13,7 @@
           </div>
         </div>
   
-        <button class="saiba-mais">SAIBA MAIS</button>
+        <button class="saiba-mais" @click="goToAbout">SAIBA MAIS</button>
       </div>
   
       <img class="imagem" src="@/assets/cards/lubiam_2-1.png" alt="Modelo elegante" />
@@ -21,6 +21,13 @@
   </template>
   
   <script lang="ts" setup>
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter()
+
+  const goToAbout = () => {
+    router.push('/about')
+  }
   </script>
   
   <style scoped>
@@ -31,9 +38,10 @@
     justify-content: flex-start;
     gap: 64px;
     padding: 64px 232px;
-    background-color: #fff;
+    background-color: var(--bg-color);
     font-family: Roboto, sans-serif;
-    color: #000;
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
   }
   
   .left {
@@ -49,6 +57,8 @@
     letter-spacing: 1.25px;
     line-height: 50px;
     margin: 0;
+    color: var(--text-color);
+    transition: color 0.3s;
   }
   
   .descricao {
@@ -58,13 +68,15 @@
     flex-direction: column;
     gap: 24px;
     text-align: left;
+    color: var(--text-color);
+    transition: color 0.3s;
   }
   
   .saiba-mais {
     height: 52px;
     padding: 0 64px;
-    background-color: #000;
-    color: rgba(255, 255, 255, 0.87);
+    background-color: var(--text-color);
+    color: var(--bg-color);
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 1.25px;
@@ -72,10 +84,13 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: all 0.3s ease;
   }
   
   .saiba-mais:hover {
-    background-color: #333;
+    opacity: 0.8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--nav-shadow);
   }
   
   .imagem {
@@ -84,6 +99,8 @@
     height: auto;
     object-fit: cover;
     border-radius: 4px;
+    box-shadow: 0 4px 12px var(--nav-shadow);
+    transition: box-shadow 0.3s;
   }
   </style>
   
