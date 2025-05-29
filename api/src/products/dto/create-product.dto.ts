@@ -6,9 +6,9 @@ export class CreateProductDto {
   @IsNotEmpty()
   title: string;
 
+  @IsNumber()
   @Min(0)
   price: number;
-
 
   @IsObject()
   @IsNotEmpty()
@@ -27,4 +27,8 @@ export class CreateProductDto {
   @IsOptional()
   @IsEnum(Category)
   category?: Category;
+
+  @IsOptional()
+  @IsString()
+  picture?: string;
 }
