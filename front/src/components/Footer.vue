@@ -3,7 +3,7 @@
       <div class="contents">
         <div class="left">
           <a href="#" class="link">Contato</a>
-          <a href="#" class="link">Política de Privacidade</a>
+          <router-link to="/about" class="link">Sobre</router-link>
           <a href="#" class="link">Termo de Uso</a>
         </div>
         <div class="right">
@@ -22,8 +22,10 @@
     padding: 64px 0;
     font-family: Roboto, sans-serif;
     font-size: 16px;
-    color: #000;
-    background-color: #fff;
+    color: var(--text-color);
+    background-color: var(--nav-bg);
+    border-top: 1px solid var(--border-color);
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
   }
   
   .contents {
@@ -41,19 +43,22 @@
   }
   
   .right {
-    color: #696969;
+    color: var(--text-color);
+    opacity: 0.6;
+    transition: color 0.3s;
   }
   
   .link {
     text-decoration: none;
-    color: inherit;
+    color: var(--text-color);
     letter-spacing: 1.25px;
     line-height: 44px;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, color 0.3s;
+    opacity: 0.8;
   }
   
   .link:hover {
-    opacity: 0.7;
+    opacity: 0.6;
   }
   </style>
   
