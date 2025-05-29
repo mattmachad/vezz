@@ -68,7 +68,7 @@ export class UsersService implements OnModuleInit {
     return user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto, file?: Express.Multer.File): Promise<User> {
     const user: User | null = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
@@ -79,9 +79,26 @@ export class UsersService implements OnModuleInit {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
+    if (file && file.buffer && file.size > 0) {
+      const uploadResult = await this.cloudinaryService.uploadImage({
+        fieldname: file.fieldname,
+        originalname: file.originalname,
+        encoding: file.encoding,
+        mimetype: file.mimetype,
+        buffer: file.buffer,
+        size: file.size,
+      });
+
+      if ('secure_url' in uploadResult) {
+        updateUserDto.picture = uploadResult.secure_url;
+      }
+    }
+
     const updatedUser: User = Object.assign(user, updateUserDto);
     return await this.userRepository.save(updatedUser);
   }
+
+
 
   async remove(id: number): Promise<string> {
     const user: User | null = await this.userRepository.findOne({ where: { id } });
