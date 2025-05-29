@@ -17,8 +17,20 @@
             </div>
   
             <div v-if="isUserLoggedIn" class="icons">
-              <img class="icon favorite" :src="darkModeStore.isDark ? favoriteIconWhite : favoriteIcon" alt="Favoritar" @click.stop="toggleFavorite(product)" />
-              <img class="icon add" :src="darkModeStore.isDark ? addIconWhite : addIcon" alt="Adicionar" @click.stop="addToCart(product)" />
+              <img 
+                class="icon favorite" 
+                :src="darkModeStore.isDark 
+                  ? (isFavorite(product.id) ? favoriteIconFilledWhite : favoriteIconWhite)
+                  : (isFavorite(product.id) ? favoriteIconFilled : favoriteIcon)" 
+                alt="Favoritar" 
+                @click.stop="toggleFavorite(product)" 
+              />
+              <img 
+                class="icon add" 
+                :src="darkModeStore.isDark ? addIconWhite : addIcon" 
+                alt="Adicionar" 
+                @click.stop="addToCart(product)" 
+              />
             </div>
           </div>
   
@@ -47,6 +59,20 @@
           <span class="arrow">→</span>
         </button>
       </div>
+
+      <!-- Toast Notification -->
+      <transition name="toast">
+        <div v-if="showToastFlag" class="toast-container">
+          <transition name="badge">
+            <div v-if="addCounter > 1" class="toast-badge">
+              {{ addCounter }}x
+            </div>
+          </transition>
+          <div class="toast">
+            {{ toastMessage }}
+          </div>
+        </div>
+      </transition>
     </section>
   </template>
   
@@ -56,6 +82,7 @@
   import { useCartStore } from '@/stores/cart'
   import { useDarkModeStore } from '@/stores/darkMode'
   import { useAuthStore } from '@/stores/auth'
+  import { useFavoritesStore } from '@/stores/favorites'
   import model1 from '@/assets/cards/model1.png'
   import model2 from '@/assets/cards/model2.png'
   import model3 from '@/assets/cards/model3.png'
@@ -65,6 +92,8 @@
   import addIconWhite from '@/assets/cards/add-white.svg'
   import favoriteIcon from '@/assets/cards/favorite.svg'
   import favoriteIconWhite from '@/assets/cards/favorite-white.svg'
+  import favoriteIconFilled from '@/assets/cards/favorite_filled.svg'
+  import favoriteIconFilledWhite from '@/assets/cards/favorite_filled-white.svg'
   import vezzLogo from '@/assets/cards/vezz-logo.png'
   import vezzLogoWhite from '@/assets/cards/vezz-logo-white.svg'
 
@@ -72,6 +101,40 @@
   const darkModeStore = useDarkModeStore()
   const cartStore = useCartStore()
   const authStore = useAuthStore()
+  const favoritesStore = useFavoritesStore()
+
+  // Toast state
+  const toastMessage = ref('')
+  const showToastFlag = ref(false)
+  const addCounter = ref(0)
+  let toastTimeout: ReturnType<typeof setTimeout> | null = null
+
+  const showToast = (message: string) => {
+    // If toast is already showing, just increment counter
+    if (showToastFlag.value) {
+      addCounter.value++
+      
+      // Reset the timeout
+      if (toastTimeout) {
+        clearTimeout(toastTimeout)
+      }
+      
+      toastTimeout = setTimeout(() => {
+        showToastFlag.value = false
+        addCounter.value = 0
+      }, 3000)
+    } else {
+      // First time showing toast
+      toastMessage.value = message
+      showToastFlag.value = true
+      addCounter.value = 1
+      
+      toastTimeout = setTimeout(() => {
+        showToastFlag.value = false
+        addCounter.value = 0
+      }, 3000)
+    }
+  }
 
   const isUserLoggedIn = computed(() => {
     return !!localStorage.getItem('user')
@@ -99,7 +162,7 @@
   const addToCart = (product: LocalProduct) => {
     if (!isUserLoggedIn.value) return
     
-    cartStore.addToCart({
+    const success = cartStore.addToCart({
       id: product.id,
       name: product.name,
       price: parseFloat(product.price.replace(',', '.')),
@@ -107,11 +170,31 @@
       quantity: 1,
       image: product.image
     })
+
+    if (success) {
+      showToast('Produto adicionado ao carrinho!')
+    }
   }
 
   const toggleFavorite = (product: LocalProduct) => {
-    if (!isUserLoggedIn.value) return
-    // Implementar lógica de favoritos aqui
+    if (!isUserLoggedIn.value) {
+      showToast('Você precisa estar logado para favoritar produtos!')
+      return
+    }
+
+    const isFavorited = favoritesStore.isFavorite(product.id)
+    
+    if (isFavorited) {
+      favoritesStore.removeFromFavorites(product.id)
+      showToast('Produto removido dos favoritos!')
+    } else {
+      favoritesStore.addToFavorites(product.id)
+      showToast('Produto adicionado aos favoritos!')
+    }
+  }
+
+  const isFavorite = (productId: number) => {
+    return favoritesStore.isFavorite(productId)
   }
   </script>
   
@@ -327,6 +410,79 @@
 
   .view-all-btn:hover .arrow {
     transform: translateX(4px);
+  }
+
+  /* Toast Styles */
+  .toast-container {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast {
+    background: #333;
+    color: white;
+    padding: 16px 32px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+  }
+
+  .toast-badge {
+    background: #439cd3;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: bounceIn 0.3s ease;
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .toast-enter-from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+
+  .toast-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+
+  .badge-enter-active,
+  .badge-leave-active {
+    transition: all 0.2s ease;
+  }
+
+  .badge-enter-from,
+  .badge-leave-to {
+    opacity: 0;
+    transform: scale(0);
   }
   </style>
   

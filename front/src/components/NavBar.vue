@@ -31,7 +31,31 @@
             <router-link to="/about" class="nav-link" @click="closeMobileMenu">SOBRE</router-link>
             <div class="mobile-icons">
               <router-link v-if="isUserLoggedIn" to="/wishlist" class="mobile-link" @click="closeMobileMenu">Favoritos</router-link>
-              <router-link to="/login" class="mobile-link" @click="closeMobileMenu">Perfil</router-link>
+              
+              <div v-if="isUserLoggedIn" class="mobile-profile-menu">
+                <button class="mobile-link mobile-profile-button" @click.prevent="toggleMobileProfileMenu">
+                  Perfil
+                  <svg class="mobile-dropdown-arrow" :class="{ 'open': showMobileProfileMenu }" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z"/>
+                  </svg>
+                </button>
+                
+                <transition name="slide">
+                  <div v-show="showMobileProfileMenu" class="mobile-profile-submenu">
+                    <router-link to="/editprofile" class="mobile-submenu-item" @click="closeMobileMenu">
+                      Editar Perfil
+                    </router-link>
+                    <button class="mobile-submenu-item" @click="handleMobileLogout">
+                      Logout
+                    </button>
+                  </div>
+                </transition>
+              </div>
+              
+              <router-link v-else to="/login" class="mobile-link" @click="closeMobileMenu">
+                Login
+              </router-link>
+              
               <router-link v-if="isUserLoggedIn" to="/checkout" class="mobile-link" @click="closeMobileMenu">Sacola</router-link>
             </div>
           </nav>
@@ -54,9 +78,29 @@
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
             </svg>
           </div>
-          <router-link to="/login">
-            <img class="icon" alt="Conta" :src="darkModeStore.isDark ? accountIconWhite : accountIcon" />
-          </router-link>
+          <div class="profile-menu">
+            <button v-if="isUserLoggedIn" class="profile-button" type="button" @click.stop="toggleProfileMenu">
+              <img class="icon" alt="Conta" :src="darkModeStore.isDark ? accountIconWhite : accountIcon" />
+            </button>
+            <router-link v-else to="/login">
+              <img class="icon" alt="Conta" :src="darkModeStore.isDark ? accountIconWhite : accountIcon" />
+            </router-link>
+            
+            <div v-if="isUserLoggedIn && showProfileMenu" class="profile-dropdown" v-click-outside="closeProfileMenu">
+              <router-link to="/editprofile" class="dropdown-item" @click="closeProfileMenu">
+                <svg class="dropdown-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                <span>Editar Perfil</span>
+              </router-link>
+              <button class="dropdown-item" @click="handleLogout">
+                <svg class="dropdown-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                </svg>
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
         </div>
         <router-link v-if="isUserLoggedIn" to="/checkout" class="cart-link">
           <img class="icon" alt="Carrinho" :src="darkModeStore.isDark ? cartIconWhite : cartIcon" />
@@ -69,6 +113,8 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import type { Directive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useDarkModeStore } from '@/stores/darkMode'
 import { useAuthStore } from '@/stores/auth'
@@ -85,9 +131,12 @@ import accountIconWhite from '@/assets/account_circle-white.svg'
 import cartIcon from '@/assets/shopping_bag.svg'
 import cartIconWhite from '@/assets/shopping_bag-white.svg'
 
+const router = useRouter()
 const cartStore = ref(useCartStore())
 const darkModeStore = useDarkModeStore()
 const authStore = useAuthStore()
+const showProfileMenu = ref(false)
+const showMobileProfileMenu = ref(false)
 
 const itemCount = computed(() => {
   if (!cartStore.value?.items) return 0
@@ -125,17 +174,80 @@ const closeMobileMenu = () => {
 }
 
 const isUserLoggedIn = computed(() => {
-  return !!localStorage.getItem('user')
+  return authStore.isLoggedIn
 })
 
+const toggleProfileMenu = (event: Event) => {
+  event.stopPropagation()
+  showProfileMenu.value = !showProfileMenu.value
+}
+
+const closeProfileMenu = () => {
+  showProfileMenu.value = false
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  cartStore.value.clearCart()
+  closeProfileMenu()
+  router.push('/')
+}
+
+const toggleMobileProfileMenu = () => {
+  showMobileProfileMenu.value = !showMobileProfileMenu.value
+}
+
+const handleMobileLogout = () => {
+  authStore.logout()
+  cartStore.value.clearCart()
+  closeMobileMenu()
+  router.push('/')
+}
+
+// Click outside directive
+const vClickOutside: Directive = {
+  beforeMount: (el: HTMLElement, binding: any) => {
+    el.clickOutsideEvent = (event: Event) => {
+      if (!(el === event.target || el.contains(event.target as Node))) {
+        binding.value()
+      }
+    }
+    document.addEventListener('click', el.clickOutsideEvent)
+  },
+  unmounted: (el: HTMLElement) => {
+    if (el.clickOutsideEvent) {
+      document.removeEventListener('click', el.clickOutsideEvent)
+    }
+  }
+}
+
+// Close menu when clicking outside
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
+  document.addEventListener('click', (event) => {
+    if (showProfileMenu.value) {
+      const target = event.target as HTMLElement
+      const menu = document.querySelector('.profile-dropdown')
+      const button = document.querySelector('.profile-button')
+      if (menu && !menu.contains(target) && button && !button.contains(target)) {
+        closeProfileMenu()
+      }
+    }
+  })
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkMobile)
+  document.removeEventListener('click', closeProfileMenu)
 })
+
+// Extend HTMLElement to include our custom event
+declare global {
+  interface HTMLElement {
+    clickOutsideEvent?: (event: Event) => void;
+  }
+}
 </script>
 
 <style scoped>
@@ -451,5 +563,147 @@ onUnmounted(() => {
   right: 16px;
   z-index: 1300;
   margin: 0;
+}
+
+.profile-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--nav-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  min-width: 180px;
+  z-index: 1000;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.dropdown-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.dropdown-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+/* Mobile adjustments */
+@media (max-width: 900px) {
+  .profile-dropdown {
+    display: none;
+  }
+}
+
+:root {
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --border-color: rgba(0, 0, 0, 0.12);
+}
+
+:root.dark-mode {
+  --hover-bg: rgba(255, 255, 255, 0.08);
+  --border-color: rgba(255, 255, 255, 0.12);
+}
+
+.mobile-profile-menu {
+  width: 100%;
+}
+
+.mobile-profile-button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  border: none;
+  background: none;
+  font-family: inherit;
+  padding: 0;
+}
+
+.mobile-dropdown-arrow {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+}
+
+.mobile-dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.mobile-profile-submenu {
+  padding-left: 16px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-submenu-item {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1.25px;
+  opacity: 0.85;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
+
+.mobile-submenu-item:hover {
+  opacity: 0.6;
+  color: var(--primary-color);
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+  max-height: 100px;
+  opacity: 1;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
 }
 </style>

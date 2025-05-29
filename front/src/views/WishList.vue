@@ -60,7 +60,12 @@
           </div>
         </div>
         <div :class="[$style.container, viewMode]">
+          <div v-if="loading" :class="$style.loading">
+            <div :class="$style.loadingSpinner"></div>
+            <p>Carregando produtos...</p>
+          </div>
           <transition-group
+            v-else
             name="wishlist-items"
             tag="div"
             :class="$style.productsGrid"
@@ -104,7 +109,7 @@
             </div>
           </transition-group>
           
-          <div v-if="filteredAndSortedProducts.length === 0" :class="$style.noProducts">
+          <div v-if="!loading && filteredAndSortedProducts.length === 0" :class="$style.noProducts">
             <img :src="emptyStateIcon" alt="Nenhum produto" />
             <p>Nenhum produto encontrado</p>
             <button v-if="searchQuery" @click="searchQuery = ''" :class="$style.clearSearchBtn">
@@ -117,143 +122,168 @@
   </div>
 </template>
 
-<script>
-import { ref, computed } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
+import { useFavoritesStore } from '@/stores/favorites'
+import api from '@/services/api'
 import swapVertIcon from '../assets/swap_vert.svg'
 import keyboardArrowDownIcon from '../assets/keyboard_arrow_down.svg'
-import favoriteIcon from '../assets/cards/favorite.svg'
 import favoriteIconFilled from '../assets/cards/favorite_filled.svg'
 import deleteIcon from '../assets/delete.svg'
 import searchIcon from '../assets/search.svg'
 import gridViewIcon from '../assets/grid_view.svg'
 import listViewIcon from '../assets/list_view.svg'
 import emptyStateIcon from '../assets/empty_state.svg'
-import vezzLogo from '../assets/vezz-logo.png'
 
-export default {
-  components: {
-    NavBar
-  },
-  setup() {
-    // Estados reativos
-    const searchQuery = ref('')
-    const viewMode = ref('grid')
-    const selectedSort = ref('featured')
-    const showSortDropdown = ref(false)
-    
-    // Produtos mockados (substituir por dados reais da store/API)
-    const wishlistProducts = ref([
-      {
-        id: 1,
-        name: 'Terno Clássico Preto',
-        price: 899.99,
-        image: vezzLogo,
-        inStock: true,
-        category: 'Ternos',
-        dateAdded: new Date('2024-01-15')
-      },
-      {
-        id: 2,
-        name: 'Terno Slim Azul Marinho',
-        price: 1299.99,
-        image: vezzLogo,
-        inStock: true,
-        category: 'Ternos',
-        dateAdded: new Date('2024-01-10')
-      },
-      {
-        id: 3,
-        name: 'Terno Executivo Cinza',
-        price: 799.99,
-        image: vezzLogo,
-        inStock: false,
-        category: 'Ternos',
-        dateAdded: new Date('2024-01-20')
-      }
-    ])
-    
-    // Opções de ordenação
-    const sortOptions = [
-      { value: 'featured', label: 'Mais Procurados' },
-      { value: 'price-asc', label: 'Menor Preço' },
-      { value: 'price-desc', label: 'Maior Preço' },
-      { value: 'name-asc', label: 'Nome A-Z' },
-      { value: 'name-desc', label: 'Nome Z-A' },
-      { value: 'date-desc', label: 'Mais Recentes' },
-      { value: 'date-asc', label: 'Mais Antigos' }
-    ]
-    
-    // Computed para filtrar e ordenar produtos
-    const filteredAndSortedProducts = computed(() => {
-      let filtered = wishlistProducts.value
-      
-      // Aplicar busca
-      if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase()
-        filtered = filtered.filter(product => 
-          product.name.toLowerCase().includes(query) ||
-          product.category.toLowerCase().includes(query)
-        )
-      }
-      
-      // Aplicar ordenação
-      const sorted = [...filtered]
-      switch (selectedSort.value) {
-        case 'price-asc':
-          sorted.sort((a, b) => a.price - b.price)
-          break
-        case 'price-desc':
-          sorted.sort((a, b) => b.price - a.price)
-          break
-        case 'name-asc':
-          sorted.sort((a, b) => a.name.localeCompare(b.name))
-          break
-        case 'name-desc':
-          sorted.sort((a, b) => b.name.localeCompare(a.name))
-          break
-        case 'date-desc':
-          sorted.sort((a, b) => b.dateAdded - a.dateAdded)
-          break
-        case 'date-asc':
-          sorted.sort((a, b) => a.dateAdded - b.dateAdded)
-          break
-      }
-      
-      return sorted
-    })
-    
-    // Função para remover da wishlist
-    const removeFromWishlist = (productId) => {
-      const index = wishlistProducts.value.findIndex(p => p.id === productId)
-      if (index !== -1) {
-        wishlistProducts.value.splice(index, 1)
-      }
-    }
-    
-    return {
-      searchQuery,
-      viewMode,
-      selectedSort,
-      showSortDropdown,
-      sortOptions,
-      filteredAndSortedProducts,
-      removeFromWishlist,
-      swapVertIcon,
-      keyboardArrowDownIcon,
-      favoriteIcon,
-      favoriteIconFilled,
-      deleteIcon,
-      searchIcon,
-      gridViewIcon,
-      listViewIcon,
-      emptyStateIcon
-    }
+interface Product {
+  id: number;
+  title: string;
+  price: number;
+  picture?: string;
+  category: string;
+  quantities: Record<string, number>;
+}
+
+interface WishlistProduct {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  inStock: boolean;
+  category: string;
+  dateAdded: Date;
+}
+
+const router = useRouter()
+const favoritesStore = useFavoritesStore()
+const searchQuery = ref('')
+const viewMode = ref('grid')
+const selectedSort = ref('featured')
+const showSortDropdown = ref(false)
+const loading = ref(true)
+const rawProducts = ref<Product[]>([])
+
+// Opções de ordenação
+const sortOptions = [
+  { value: 'featured', label: 'Mais Procurados' },
+  { value: 'price-asc', label: 'Menor Preço' },
+  { value: 'price-desc', label: 'Maior Preço' },
+  { value: 'name-asc', label: 'Nome A-Z' },
+  { value: 'name-desc', label: 'Nome Z-A' },
+  { value: 'date-desc', label: 'Mais Recentes' },
+  { value: 'date-asc', label: 'Mais Antigos' }
+]
+
+// Buscar todos os produtos
+const fetchProducts = async () => {
+  try {
+    loading.value = true
+    const response = await api.get('/products')
+    rawProducts.value = response.data
+  } catch (error) {
+    console.error('Error fetching products:', error)
+  } finally {
+    loading.value = false
   }
 }
+
+// Computed para obter apenas os produtos favoritados
+const wishlistProducts = computed<WishlistProduct[]>(() => {
+  return rawProducts.value
+    .filter(product => favoritesStore.isFavorite(product.id))
+    .map(product => {
+      const totalStock = Object.values(product.quantities || {}).reduce((sum, qty) => sum + qty, 0)
+      const fallbackImage = 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748493239/file_pdysef.png'
+      const productImage = product.picture && product.picture.trim() !== '' ? product.picture : fallbackImage
+
+      return {
+        id: product.id,
+        name: product.title,
+        price: product.price,
+        image: productImage,
+        inStock: totalStock > 0,
+        category: product.category,
+        dateAdded: new Date() // Podemos adicionar uma data real depois
+      }
+    })
+})
+
+// Computed para filtrar e ordenar produtos
+const filteredAndSortedProducts = computed(() => {
+  let filtered = wishlistProducts.value
+  
+  // Aplicar busca
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(product => 
+      product.name.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query)
+    )
+  }
+  
+  // Aplicar ordenação
+  const sorted = [...filtered]
+  switch (selectedSort.value) {
+    case 'price-asc':
+      sorted.sort((a, b) => a.price - b.price)
+      break
+    case 'price-desc':
+      sorted.sort((a, b) => b.price - a.price)
+      break
+    case 'name-asc':
+      sorted.sort((a, b) => a.name.localeCompare(b.name))
+      break
+    case 'name-desc':
+      sorted.sort((a, b) => b.name.localeCompare(a.name))
+      break
+    case 'date-desc':
+      sorted.sort((a, b) => b.dateAdded.getTime() - a.dateAdded.getTime())
+      break
+    case 'date-asc':
+      sorted.sort((a, b) => a.dateAdded.getTime() - b.dateAdded.getTime())
+      break
+  }
+  
+  return sorted
+})
+
+// Função para remover da wishlist
+const removeFromWishlist = (productId: number) => {
+  favoritesStore.removeFromFavorites(productId)
+}
+
+onMounted(() => {
+  fetchProducts()
+})
 </script>
 
 <style module>
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #666;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .listaDeFavoritos {
   position: relative;
   letter-spacing: 1.25px;

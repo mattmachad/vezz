@@ -9,6 +9,7 @@ import About from '@/views/About.vue'
 import LookBook from '@/views/LookBook.vue'
 import OrderSuccess from '@/views/OrderSuccess.vue'
 import WishList from '@/views/WishList.vue'
+import EditProfile from '@/views/EditProfile.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -62,6 +63,11 @@ const router = createRouter({
             path: '/wishlist',
             name: 'wishlist',
             component: WishList
+        },
+        {
+            path: '/editprofile',
+            name: 'edit-profile',
+            component: EditProfile
         }
     ]
 })

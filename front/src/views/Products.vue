@@ -219,8 +219,15 @@
     </div>
 
     <transition name="toast">
-      <div v-if="showToastFlag" class="toast">
-        {{ toastMessage }}
+      <div v-if="showToastFlag" class="toast-container">
+        <transition name="badge">
+          <div v-if="addCounter > 1" class="toast-badge">
+            {{ addCounter }}x
+          </div>
+        </transition>
+        <div class="toast">
+          {{ toastMessage }}
+        </div>
       </div>
     </transition>
   </div>
@@ -428,12 +435,33 @@ const toggleFavorite = (productId: number) => {
 
 const isFavorite = (productId: number) => favoritesStore.isFavorite(productId)
 
+const toastMessage = ref('')
+const showToastFlag = ref(false)
+const addCounter = ref(0)
+let toastTimeout: ReturnType<typeof setTimeout> | null = null
+
 const showToast = (message: string) => {
-  toastMessage.value = message
-  showToastFlag.value = true
-  setTimeout(() => {
-    showToastFlag.value = false
-  }, 3000)
+  if (showToastFlag.value) {
+    addCounter.value++
+    
+    if (toastTimeout) {
+      clearTimeout(toastTimeout)
+    }
+    
+    toastTimeout = setTimeout(() => {
+      showToastFlag.value = false
+      addCounter.value = 0
+    }, 3000)
+  } else {
+    toastMessage.value = message
+    showToastFlag.value = true
+    addCounter.value = 1
+    
+    toastTimeout = setTimeout(() => {
+      showToastFlag.value = false
+      addCounter.value = 0
+    }, 3000)
+  }
 }
 
 const toggleSection = (section: keyof typeof sectionsOpen.value) => {
@@ -553,7 +581,6 @@ const addToCart = (product: DisplayProduct) => {
       cart.value = useCartStore()
     }
 
-    // Find first available size
     const availableSize = product.sizeDetails.find(s => s.available)
     if (!availableSize) {
       showToast('Produto indisponível')
@@ -577,9 +604,6 @@ const addToCart = (product: DisplayProduct) => {
     showToast('Erro ao adicionar ao carrinho')
   }
 }
-
-const toastMessage = ref('')
-const showToastFlag = ref(false)
 
 const isUserLoggedIn = computed(() => {
   return !!localStorage.getItem('user')
@@ -969,18 +993,50 @@ const isUserLoggedIn = computed(() => {
   }
 }
 
-.toast {
+.toast-container {
   position: fixed;
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast {
   background: #333;
   color: white;
   padding: 16px 32px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
   font-size: 14px;
+}
+
+.toast-badge {
+  background: #439cd3;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: bounceIn 0.3s ease;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .toast-enter-active,
@@ -996,6 +1052,17 @@ const isUserLoggedIn = computed(() => {
 .toast-leave-to {
   opacity: 0;
   transform: translate(-50%, -20px);
+}
+
+.badge-enter-active,
+.badge-leave-active {
+  transition: all 0.2s ease;
+}
+
+.badge-enter-from,
+.badge-leave-to {
+  opacity: 0;
+  transform: scale(0);
 }
 </style>
 

@@ -811,7 +811,7 @@ const finishOrder = async () => {
     localStorage.removeItem('cart')
     localStorage.removeItem('type_payment')
     setTimeout(() => {
-      router.push('/orders')
+      window.location.href = 'http://localhost:5173/'
     }, 2000)
 
   } catch (error) {
