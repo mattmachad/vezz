@@ -37,7 +37,7 @@ export class ProductsService implements OnModuleInit {
 
     const product: Product = this.productRepository.create({
       ...createProductDto,
-      picture: imageUrl,
+      picture: createProductDto.picture ? createProductDto.picture : imageUrl,
     });
 
     const saved: Product = await this.productRepository.save(product);
@@ -87,7 +87,8 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 8, M: 10, P: 5, GG: 0 },
         color: 'preto',
         gender: Gender.MALE,
-        category: Category.CLOTHES
+        category: Category.CLOTHES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502443/model4_wyckvu.png'
       },
       {
         title: 'Terno Branco Premium',
@@ -95,7 +96,8 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 0, M: 1, P: 0, GG: 100 },
         color: 'branco',
         gender: Gender.MALE,
-        category: Category.CLOTHES
+        category: Category.CLOTHES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502426/model3_mirtub.png'
       },
       {
         title: 'Camisa Social Azul',
@@ -103,7 +105,8 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 15, M: 20, P: 10, GG: 5 },
         color: 'azul',
         gender: Gender.MALE,
-        category: Category.CLOTHES
+        category: Category.CLOTHES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502410/model2_ojqqym.png'
       },
       {
         title: 'Calça Social Cinza',
@@ -111,7 +114,8 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 12, M: 8, P: 6, GG: 4 },
         color: 'cinza',
         gender: Gender.MALE,
-        category: Category.CLOTHES
+        category: Category.CLOTHES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502289/model1_e9dt0p.png'
       },
       {
         title: 'Sapato Oxford Preto',
@@ -119,7 +123,8 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 5, M: 7, P: 3, GG: 2 },
         color: 'preto',
         gender: Gender.MALE,
-        category: Category.SHOES
+        category: Category.SHOES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502443/model4_wyckvu.png'
       },
       {
         title: 'Gravata Vermelha',
@@ -127,7 +132,8 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 50, M: 0, P: 0, GG: 0 },
         color: 'vermelho',
         gender: Gender.UNISEX,
-        category: Category.ACCESSORIES
+        category: Category.ACCESSORIES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502410/model2_ojqqym.png'
       },
       {
         title: 'Vestido Cocktail Rosa',
@@ -135,7 +141,8 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 4, M: 6, P: 8, GG: 2 },
         color: 'rosa',
         gender: Gender.FEMALE,
-        category: Category.CLOTHES
+        category: Category.CLOTHES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502289/model1_e9dt0p.png'
       },
       {
         title: 'Blazer Feminino Verde',
@@ -143,9 +150,11 @@ export class ProductsService implements OnModuleInit {
         quantities: { G: 0, M: 0, P: 0, GG: 0 },
         color: 'verde',
         gender: Gender.FEMALE,
-        category: Category.CLOTHES
+        category: Category.CLOTHES,
+        picture: 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748502443/model4_wyckvu.png'
       }
     ];
+
 
     for (const product of sampleProducts) {
       const exists: Product | null = await this.productRepository.findOne({
