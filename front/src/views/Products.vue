@@ -328,8 +328,11 @@
 <script setup lang="ts">
 import NavBar from '../components/NavBar.vue'
 import { ref, onMounted, computed, watch, useCssModule } from 'vue'
+import { storeToRefs } from 'pinia'
 import api from '../services/api'
 import type { Product, DisplayProduct } from '../types/product'
+import { useCartStore } from '@/stores/cart'
+import type { CartItem } from '@/stores/cart'
 
 import addIcon from '../assets/cards/add.svg'
 import favoriteIcon from '../assets/cards/favorite.svg'
@@ -357,6 +360,7 @@ const selectedFilters = ref({
 
 const rawProducts = ref<Product[]>([])
 const loading = ref(true)
+const cart = ref<ReturnType<typeof useCartStore> | null>(null)
 
 const priceRange = ref({
   min: 0,
@@ -523,14 +527,6 @@ const toggleFavorite = (productId: number) => {
 
 const isFavorite = (productId: number) => favorites.value.includes(productId)
 
-const addToCart = (product: DisplayProduct) => {
-  console.log('Adding to cart:', product)
-  showToast('Produto adicionado ao carrinho!')
-}
-
-const toastMessage = ref('')
-const showToastFlag = ref(false)
-
 const showToast = (message: string) => {
   toastMessage.value = message
   showToastFlag.value = true
@@ -604,9 +600,6 @@ const fetchProducts = async () => {
       min: range.min,
       max: range.max
     }
-    
-    console.log('Products fetched:', response.data)
-    console.log('Price range:', range)
   } catch (error) {
     console.error('Error fetching products:', error)
   } finally {
@@ -615,6 +608,11 @@ const fetchProducts = async () => {
 }
 
 onMounted(() => {
+  try {
+    cart.value = useCartStore()
+  } catch (error) {
+    console.error('Failed to initialize cart store:', error)
+  }
   fetchProducts()
 })
 
@@ -647,6 +645,37 @@ watch([() => priceRange.value.min, () => priceRange.value.max], () => {
     rangeWrapper.style.setProperty('--right-percent', `${rightPercent}%`);
   }
 }, { immediate: true })
+
+const addToCart = (product: DisplayProduct) => {
+  try {
+    if (!cart.value) {
+      cart.value = useCartStore()
+    }
+
+    // Find first available size
+    const availableSize = product.sizeDetails.find(s => s.available)
+    if (!availableSize) {
+      showToast('Produto indisponível')
+      return
+    }
+    
+    cart.value.addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      size: availableSize.size,
+      quantity: 1,
+      image: product.images[0]
+    })
+    showToast('Produto adicionado ao carrinho!')
+  } catch (error) {
+    console.error('Failed to add to cart:', error)
+    showToast('Erro ao adicionar ao carrinho')
+  }
+}
+
+const toastMessage = ref('')
+const showToastFlag = ref(false)
 </script>
 
 <style scoped>

@@ -13,13 +13,26 @@
         <router-link to="/"><img class="icon" alt="Buscar" src="@/assets/search.svg" /></router-link>
         <router-link to="/"><img class="icon" alt="Favoritos" src="@/assets/favorite.svg" /></router-link>
         <router-link to="/login"><img class="icon" alt="Conta" src="@/assets/account_circle.svg" /></router-link>
-        <router-link to="/"><img class="icon" alt="Carrinho" src="@/assets/shopping_bag.svg" /></router-link>
+        <router-link to="/checkout" class="cart-link">
+          <img class="icon" alt="Carrinho" src="@/assets/shopping_bag.svg" />
+          <span v-if="itemCount > 0" class="cart-badge">{{ itemCount }}</span>
+        </router-link>
       </div>
     </div>
   </header>
 </template>
 
 <script lang="ts" setup>
+import { ref, computed } from 'vue'
+import { useCartStore } from '@/stores/cart'
+import type { CartItem } from '@/stores/cart'
+
+const cartStore = ref(useCartStore())
+
+const itemCount = computed(() => {
+  if (!cartStore.value?.items) return 0
+  return cartStore.value.items.reduce((total: number, item: CartItem) => total + item.quantity, 0)
+})
 </script>
 
 <style scoped>
@@ -30,12 +43,7 @@
 .header {
   width: 100%;
   background-color: #fff;
-  box-shadow:
-    0px 240px 67px rgba(0, 0, 0, 0),
-    0px 154px 61px rgba(0, 0, 0, 0.02),
-    0px 86px 52px rgba(0, 0, 0, 0.08),
-    0px 38px 38px rgba(0, 0, 0, 0.13),
-    0px 10px 21px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 10px 21px rgba(0, 0, 0, 0.15);
   font-family: 'Roboto', sans-serif;
 }
 
@@ -87,5 +95,28 @@
 
 .icon:hover {
   opacity: 0.6;
+}
+
+.cart-link {
+  position: relative;
+  display: inline-block;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #439cd3;
+  color: white;
+  border-radius: 50%;
+  padding: 2px;
+  min-width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 </style>
