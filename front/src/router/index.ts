@@ -7,6 +7,7 @@ import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import About from '@/views/About.vue'
 import LookBook from '@/views/LookBook.vue'
+import OrderSuccess from '@/views/OrderSuccess.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -50,6 +51,11 @@ const router = createRouter({
             path: '/lookbook',
             name: 'lookbook',
             component: LookBook
+        },
+        {
+            path: '/ordersuccess',
+            name: 'ordersuccess',
+            component: OrderSuccess
         }
     ]
 })
