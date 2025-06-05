@@ -301,7 +301,7 @@ function debounce(fn, wait = 25, options = {}) {
     });
     return currentPromise;
   };
-  return function(...args) {
+  return function (...args) {
     if (currentPromise) {
       if (options.trailing) {
         trailingArgs = args;
@@ -579,7 +579,7 @@ var require_speakingurl = __commonJS2({
   "../../node_modules/.pnpm/speakingurl@14.0.1/node_modules/speakingurl/lib/speakingurl.js"(exports, module) {
     "use strict";
     init_esm_shims2();
-    (function(root) {
+    (function (root) {
       "use strict";
       var charMap = {
         // latin
@@ -1972,7 +1972,7 @@ var require_speakingurl = __commonJS2({
           symbol = opts.lang && symbolMap[opts.lang] && convertSymbols ? symbolMap[opts.lang] : convertSymbols ? symbolMap.en : {};
           langChar = opts.lang && langCharMap[opts.lang] ? langCharMap[opts.lang] : opts.lang === false || opts.lang === true ? {} : langCharMap.en;
           if (opts.titleCase && typeof opts.titleCase.length === "number" && Array.prototype.toString.call(opts.titleCase)) {
-            opts.titleCase.forEach(function(v) {
+            opts.titleCase.forEach(function (v) {
               customReplacements[v + ""] = v + "";
             });
             titleCase = true;
@@ -1980,11 +1980,11 @@ var require_speakingurl = __commonJS2({
             titleCase = !!opts.titleCase;
           }
           if (opts.custom && typeof opts.custom.length === "number" && Array.prototype.toString.call(opts.custom)) {
-            opts.custom.forEach(function(v) {
+            opts.custom.forEach(function (v) {
               customReplacements[v + ""] = v + "";
             });
           }
-          Object.keys(customReplacements).forEach(function(v) {
+          Object.keys(customReplacements).forEach(function (v) {
             var r;
             if (v.length > 1) {
               r = new RegExp("\\b" + escapeChars(v) + "\\b", "gi");
@@ -2048,7 +2048,7 @@ var require_speakingurl = __commonJS2({
           result += ch.replace(new RegExp("[^\\w\\s" + allowedChars + "_-]", "g"), separator);
         }
         if (titleCase) {
-          result = result.replace(/(\w)(\S*)/g, function(_, i2, r) {
+          result = result.replace(/(\w)(\S*)/g, function (_, i2, r) {
             var j = i2.toUpperCase() + (r !== null ? r : "");
             return Object.keys(customReplacements).indexOf(j.toLowerCase()) < 0 ? j : j.toLowerCase();
           });
@@ -2074,7 +2074,7 @@ var require_speakingurl = __commonJS2({
       var escapeChars = function escapeChars2(input) {
         return input.replace(/[-\\^$*+?.()|[\]{}\/]/g, "\\$&");
       };
-      var isReplacedCustomChar = function(ch, customReplacements) {
+      var isReplacedCustomChar = function (ch, customReplacements) {
         for (var c in customReplacements) {
           if (customReplacements[c] === ch) {
             return true;
@@ -2085,7 +2085,7 @@ var require_speakingurl = __commonJS2({
         module.exports = getSlug;
         module.exports.createSlug = createSlug;
       } else if (typeof define !== "undefined" && define.amd) {
-        define([], function() {
+        define([], function () {
           return getSlug;
         });
       } else {
@@ -2492,7 +2492,7 @@ function waitForInspectorInit(cb) {
       cb();
     }
     if (total >= /* 5s */
-    5e3)
+      5e3)
       clearInterval(timer);
   }, 30);
 }
@@ -3025,7 +3025,6 @@ function openInEditor(options = {}) {
       fetch(`${_baseUrl}__open-in-editor?file=${encodeURI(file)}`).then((response) => {
         if (!response.ok) {
           const msg = `Opening component ${fileName} failed`;
-          console.log(`%c${msg}`, "color:red");
         }
       });
     } else if (devtoolsState.vitePluginDetected) {
@@ -3504,10 +3503,12 @@ function createDevToolsApi(hooks2) {
     // send inspector state
     sendInspectorState(inspectorId) {
       const inspector = getInspector(inspectorId);
-      hooks2.callHook("sendInspectorState", { inspectorId, plugin: {
-        descriptor: inspector.descriptor,
-        setupFn: () => ({})
-      } });
+      hooks2.callHook("sendInspectorState", {
+        inspectorId, plugin: {
+          descriptor: inspector.descriptor,
+          setupFn: () => ({})
+        }
+      });
     },
     // inspect component inspector
     inspectComponentInspector() {
@@ -4451,7 +4452,7 @@ function isPlainObject(o) {
   return o && typeof o === "object" && Object.prototype.toString.call(o) === "[object Object]" && typeof o.toJSON !== "function";
 }
 var MutationType;
-(function(MutationType2) {
+(function (MutationType2) {
   MutationType2["direct"] = "direct";
   MutationType2["patchObject"] = "patch object";
   MutationType2["patchFunction"] = "patch function";
@@ -4468,10 +4469,10 @@ function download(url, name, opts) {
   const xhr = new XMLHttpRequest();
   xhr.open("GET", url);
   xhr.responseType = "blob";
-  xhr.onload = function() {
+  xhr.onload = function () {
     saveAs(xhr.response, name, opts);
   };
-  xhr.onerror = function() {
+  xhr.onerror = function () {
     console.error("could not download file");
   };
   xhr.send();
@@ -4539,10 +4540,10 @@ function downloadSaveAs(blob, name = "download", opts) {
     }
   } else {
     a.href = URL.createObjectURL(blob);
-    setTimeout(function() {
+    setTimeout(function () {
       URL.revokeObjectURL(a.href);
     }, 4e4);
-    setTimeout(function() {
+    setTimeout(function () {
       click(a);
     }, 0);
   }
@@ -4555,7 +4556,7 @@ function msSaveAs(blob, name = "download", opts) {
       const a = document.createElement("a");
       a.href = blob;
       a.target = "_blank";
-      setTimeout(function() {
+      setTimeout(function () {
         click(a);
       });
     }
@@ -4575,7 +4576,7 @@ function fileSaverSaveAs(blob, name, opts, popup) {
   const isChromeIOS = /CriOS\/[\d]+/.test(navigator.userAgent);
   if ((isChromeIOS || force && isSafari || isMacOSWebView) && typeof FileReader !== "undefined") {
     const reader = new FileReader();
-    reader.onloadend = function() {
+    reader.onloadend = function () {
       let url = reader.result;
       if (typeof url !== "string") {
         popup = null;
@@ -4597,7 +4598,7 @@ function fileSaverSaveAs(blob, name, opts, popup) {
     else
       location.href = url;
     popup = null;
-    setTimeout(function() {
+    setTimeout(function () {
       URL.revokeObjectURL(url);
     }, 4e4);
   }
@@ -4606,13 +4607,8 @@ function toastMessage(message, type) {
   const piniaMessage = "🍍 " + message;
   if (typeof __VUE_DEVTOOLS_TOAST__ === "function") {
     __VUE_DEVTOOLS_TOAST__(piniaMessage, type);
-  } else if (type === "error") {
-    console.error(piniaMessage);
-  } else if (type === "warn") {
-    console.warn(piniaMessage);
-  } else {
-    console.log(piniaMessage);
   }
+
 }
 function isPinia(o) {
   return "_a" in o && "install" in o;
@@ -5180,7 +5176,7 @@ function patchActionForGrouping(store, actionNames, wrapWithProxy) {
     return storeActions;
   }, {});
   for (const actionName in actions) {
-    store[actionName] = function() {
+    store[actionName] = function () {
       const _actionId = runningActionId;
       const trackedStore = wrapWithProxy ? new Proxy(store, {
         get(...args) {
@@ -5207,7 +5203,7 @@ function devtoolsPlugin({ app, store, options }) {
   if (!store._p._testing) {
     patchActionForGrouping(store, Object.keys(options.actions), store._isOptionsAPI);
     const originalHotUpdate = store._hotUpdate;
-    toRaw(store)._hotUpdate = function(newStore) {
+    toRaw(store)._hotUpdate = function (newStore) {
       originalHotUpdate.apply(this, arguments);
       patchActionForGrouping(store, Object.keys(newStore._hmrPayload.actions), !!store._isOptionsAPI);
     };
@@ -5479,7 +5475,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
       fn[ACTION_NAME] = name;
       return fn;
     }
-    const wrappedAction = function() {
+    const wrappedAction = function () {
       setActivePinia(pinia);
       const args = Array.from(arguments);
       const afterCallbackList = [];
@@ -5594,7 +5590,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
         ) : prop;
         if (IS_CLIENT) {
           const getters = setupStore._getters || // @ts-expect-error: same
-          (setupStore._getters = markRaw([]));
+            (setupStore._getters = markRaw([]));
           getters.push(key);
         }
       }
@@ -5643,7 +5639,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
       for (const actionName in newStore._hmrPayload.actions) {
         const actionFn = newStore[actionName];
         store[actionName] = //
-        action(actionFn, actionName);
+          action(actionFn, actionName);
       }
       for (const getterName in newStore._hmrPayload.getters) {
         const getter = newStore._hmrPayload.getters[getterName];
@@ -5655,7 +5651,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
           })
         ) : getter;
         store[getterName] = //
-        getterValue;
+          getterValue;
       }
       Object.keys(store._hmrPayload.getters).forEach((key) => {
         if (!(key in newStore._hmrPayload.getters)) {
@@ -5721,8 +5717,8 @@ function defineStore(id, setup, setupOptions) {
   function useStore(pinia, hot) {
     const hasContext = hasInjectionContext();
     pinia = // in test mode, ignore the argument provided as we can always retrieve a
-    // pinia instance with getActivePinia()
-    (false ? null : pinia) || (hasContext ? inject(piniaSymbol, null) : null);
+      // pinia instance with getActivePinia()
+      (false ? null : pinia) || (hasContext ? inject(piniaSymbol, null) : null);
     if (pinia)
       setActivePinia(pinia);
     if (!activePinia) {
@@ -5752,7 +5748,7 @@ This will fail in production.`);
     if (IS_CLIENT) {
       const currentInstance = getCurrentInstance();
       if (currentInstance && currentInstance.proxy && // avoid adding stores that are just built for hot module replacement
-      !hot) {
+        !hot) {
         const vm = currentInstance.proxy;
         const cache = "_pStores" in vm ? vm._pStores : vm._pStores = {};
         cache[id] = store;
@@ -5778,7 +5774,7 @@ This will fail in production if not fixed.`);
     stores = stores[0];
   }
   return stores.reduce((reduced, useStore) => {
-    reduced[useStore.$id + mapStoreSuffix] = function() {
+    reduced[useStore.$id + mapStoreSuffix] = function () {
       return useStore(this.$pinia);
     };
     return reduced;
@@ -5786,12 +5782,12 @@ This will fail in production if not fixed.`);
 }
 function mapState(useStore, keysOrMapper) {
   return Array.isArray(keysOrMapper) ? keysOrMapper.reduce((reduced, key) => {
-    reduced[key] = function() {
+    reduced[key] = function () {
       return useStore(this.$pinia)[key];
     };
     return reduced;
   }, {}) : Object.keys(keysOrMapper).reduce((reduced, key) => {
-    reduced[key] = function() {
+    reduced[key] = function () {
       const store = useStore(this.$pinia);
       const storeKey = keysOrMapper[key];
       return typeof storeKey === "function" ? storeKey.call(this, store) : (
@@ -5805,12 +5801,12 @@ function mapState(useStore, keysOrMapper) {
 var mapGetters = mapState;
 function mapActions(useStore, keysOrMapper) {
   return Array.isArray(keysOrMapper) ? keysOrMapper.reduce((reduced, key) => {
-    reduced[key] = function(...args) {
+    reduced[key] = function (...args) {
       return useStore(this.$pinia)[key](...args);
     };
     return reduced;
   }, {}) : Object.keys(keysOrMapper).reduce((reduced, key) => {
-    reduced[key] = function(...args) {
+    reduced[key] = function (...args) {
       return useStore(this.$pinia)[keysOrMapper[key]](...args);
     };
     return reduced;
@@ -5846,15 +5842,15 @@ function storeToRefs(store) {
     const value = rawStore[key];
     if (value.effect) {
       refs[key] = // ...
-      computed({
-        get: () => store[key],
-        set(value2) {
-          store[key] = value2;
-        }
-      });
+        computed({
+          get: () => store[key],
+          set(value2) {
+            store[key] = value2;
+          }
+        });
     } else if (isRef(value) || isReactive(value)) {
       refs[key] = // ---
-      toRef(store, key);
+        toRef(store, key);
     }
   }
   return refs;

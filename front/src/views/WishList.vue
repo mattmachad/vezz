@@ -283,7 +283,6 @@ const addToCart = async (product: WishlistProduct) => {
   }
 
   try {
-    // Verificar estoque atual
     const response = await api.get(`/products/${product.id}`)
     const currentProduct = response.data
     const availableQuantity = currentProduct.quantities[product.selectedSize] || 0
@@ -852,7 +851,6 @@ onMounted(() => {
   background: var(--button-hover);
 }
 
-/* Estilos para modo lista */
 .container.list {
   padding: 32px 72px;
 }
@@ -882,7 +880,6 @@ onMounted(() => {
   padding: 0;
 }
 
-/* Animações */
 .wishlist-items-enter-active,
 .wishlist-items-leave-active {
   transition: all 0.3s ease;
@@ -903,7 +900,6 @@ onMounted(() => {
 }
 
 
-/* Responsividade para os novos elementos */
 @media (max-width: 900px) {
   .headerRight {
     width: 100%;
@@ -1083,7 +1079,6 @@ onMounted(() => {
 }
 
 
-/* Add smooth transitions for responsive changes */
 .product,
 .foto,
 .photoIcon,
@@ -1095,7 +1090,6 @@ onMounted(() => {
 }
 
 :root {
-  /* Light theme */
   --page-bg: #f5f5f5;
   --card-bg: #ffffff;
   --text-primary: #212121;
@@ -1145,7 +1139,6 @@ onMounted(() => {
   --stock-color: #64B5F6;
 }
 
-/* Update specific dark mode styles */
 [data-theme="dark"] .main {
   background-color: var(--page-bg);
 }
@@ -1226,7 +1219,6 @@ onMounted(() => {
   background-color: var(--button-hover);
 }
 
-/* Ensure icons are visible in dark mode */
 [data-theme="dark"] .swapVertIcon,
 [data-theme="dark"] .searchIcon,
 [data-theme="dark"] .deleteIcon {
@@ -1319,7 +1311,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .price {
-    align-items: stretch; /* Remove o alinhamento à direita */
+    align-items: stretch;
     padding: 16px;
   }
 
@@ -1357,7 +1349,6 @@ onMounted(() => {
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  /* text-align: initial !important; REMOVIDO PARA NÃO CONFLITAR COM RESPONSIVO */
 }
 
 .priceRow {

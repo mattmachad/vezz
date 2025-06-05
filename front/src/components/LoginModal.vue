@@ -1,4 +1,3 @@
-<!-- Modal de Login -->
 <template>
   <Teleport to="body">
     <Transition name="modal">
@@ -117,7 +116,6 @@ h2 {
   text-decoration: underline;
 }
 
-/* Animações do modal */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.3s ease;

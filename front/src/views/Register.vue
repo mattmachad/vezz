@@ -45,7 +45,6 @@ async function handleSubmit() {
   error.value = ''
   loading.value = true
   try {
-    // Validar campos obrigatórios
     if (!form.value.nome.trim()) {
       throw new Error('Nome é obrigatório')
     }
@@ -56,18 +55,12 @@ async function handleSubmit() {
       throw new Error('Senha é obrigatória e deve ter pelo menos 6 caracteres')
     }
 
-    // Monta o payload com campos obrigatórios
     const payload = {
       name: form.value.nome.trim(),
       email: form.value.email.trim().toLowerCase(),
       password: form.value.senha,
       is_admin: false
     }
-
-    console.log('Enviando dados para registro:', {
-      ...payload,
-      password: '[REDACTED]'
-    })
 
     const response = await fetch('http://localhost:3003/users', {
       method: 'POST',
@@ -80,7 +73,6 @@ async function handleSubmit() {
     })
 
     const data = await response.json()
-    console.log('Resposta do servidor:', data)
     
     if (!response.ok) {
       throw new Error(data.message || 'Erro ao registrar')
@@ -89,7 +81,6 @@ async function handleSubmit() {
     toast.success('Conta criada com sucesso!')
     router.push('/login')
   } catch (err: any) {
-    console.error('Erro detalhado:', err)
     error.value = err.message
     toast.error(error.value || 'Erro ao criar conta')
   } finally {

@@ -62,7 +62,6 @@
         </div>
       </div>
 
-      <!-- Botão Ver Todos -->
       <div class="view-all-container">
         <button class="view-all-btn" @click="router.push('/products')">
           VER TODOS OS PRODUTOS
@@ -70,7 +69,6 @@
         </button>
       </div>
 
-      <!-- Toast Notification -->
       <transition name="toast">
         <div v-if="showToastFlag" class="toast-container">
           <transition name="badge">
@@ -115,18 +113,15 @@
   const authStore = useAuthStore()
   const favoritesStore = useFavoritesStore()
 
-  // Toast state
   const toastMessage = ref('')
   const showToastFlag = ref(false)
   const addCounter = ref(0)
   let toastTimeout: ReturnType<typeof setTimeout> | null = null
 
   const showToast = (message: string) => {
-    // If toast is already showing, just increment counter
     if (showToastFlag.value) {
       addCounter.value++
       
-      // Reset the timeout
       if (toastTimeout) {
         clearTimeout(toastTimeout)
       }
@@ -136,7 +131,6 @@
         addCounter.value = 0
       }, 3000)
     } else {
-      // First time showing toast
       toastMessage.value = message
       showToastFlag.value = true
       addCounter.value = 1
@@ -177,16 +171,13 @@
   }
 
   const handleScroll = () => {
-    // Removendo a lógica de scroll infinito pois não é mais necessária
     return
   }
 
-  // Buscar produtos em destaque
   const fetchProducts = async () => {
     try {
       loading.value = true
       const response = await api.get('/products')
-      // Filtra apenas produtos com detach = true
       products.value = response.data.filter((product: Product) => product.detach)
     } catch (error) {
       console.error('Error fetching products:', error)
@@ -491,7 +482,6 @@
     transition: color 0.3s;
   }
 
-  /* View All Button */
   .view-all-container {
     display: flex;
     justify-content: center;
@@ -552,7 +542,6 @@
     transform: translateX(4px);
   }
 
-  /* Toast Styles */
   .toast-container {
     position: fixed;
     bottom: 32px;
@@ -633,7 +622,6 @@
     transform: scale(1.1);
   }
 
-  /* Responsividade */
   @media (max-width: 1280px) {
     .cards-section {
       padding: 14px 48px;
@@ -801,7 +789,6 @@
     }
   }
 
-  /* Melhorias na rolagem horizontal para dispositivos touch */
   @media (hover: none) and (max-width: 1024px) {
     .cards {
       -webkit-overflow-scrolling: touch;

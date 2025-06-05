@@ -325,37 +325,25 @@ const showEmptyCartMessage = () => {
 
 onMounted(async () => {
   try {
-    // Re-initialize auth store
     authStore.init()
 
-    // Debug log for initial mount
-    console.log('Debug - Component Mount:', {
-      isLoggedIn: authStore.isLoggedIn,
-      user: authStore.currentUser,
-      cartItems: cartStore.value?.items?.length || 0
-    })
 
-    // Check if user is logged in with valid data
     if (!authStore.isLoggedIn || !authStore.currentUser) {
-      console.log('Debug - Not logged in or invalid user data on mount')
       toastMessage.value = 'Você precisa estar logado para acessar o carrinho'
       showToast.value = true
       setTimeout(() => {
-        authStore.logout() // Ensure clean logout
+        authStore.logout()
         router.push('/login')
       }, 1500)
       return
     }
 
     cartStore.value = useCartStore()
-    // Only redirect if cart is empty
     if (!cartStore.value?.items?.length) {
-      console.log('Debug - Empty cart on mount')
       router.push('/products')
       return
     }
 
-    // Fetch product details for all items in cart
     for (const item of cartStore.value.items) {
       try {
         const response = await api.get<ProductDetails>(`/products/${item.id}`)
@@ -371,17 +359,9 @@ onMounted(async () => {
           quantities: product.quantities
         })
       } catch (err: any) {
-        console.error('Debug - Failed to fetch product details:', {
-          productId: item.id,
-          error: err.message
-        })
       }
     }
   } catch (err: any) {
-    console.error('Debug - Mount error:', {
-      error: err,
-      message: err.message
-    })
   }
 })
 
@@ -410,22 +390,17 @@ const checkAndUpdateStock = async (itemId: number, currentSize: string) => {
   if (!cartStore.value?.items) return
 
   try {
-    // Get latest product details from API
     const response = await api.get<ProductDetails>(`/products/${itemId}`)
     const product = response.data
 
-    // Update our local state
     updateProductDetails(itemId, product)
 
-    // Get current item
     const currentItem = cartStore.value.items.find((i: CartItem) => i.id === itemId && i.size === currentSize)
     if (!currentItem) return
 
-    // Check if current size is still available and has enough stock
     const currentStockAvailable = product.quantities[currentSize] || 0
 
     if (currentStockAvailable === 0) {
-      // Remove item from cart if size is no longer available
       cartStore.value.removeFromCart(itemId, currentSize)
       return
     }
@@ -435,10 +410,8 @@ const checkAndUpdateStock = async (itemId: number, currentSize: string) => {
       cartStore.value.updateQuantity(itemId, currentSize, currentStockAvailable)
     }
 
-    // Return the updated product data
     return product
   } catch (error) {
-    console.error('Erro ao verificar estoque:', error)
   }
 }
 
@@ -454,27 +427,21 @@ const updateSize = async (itemId: number, oldSize: string, newSize: string) => {
   if (!cartStore.value?.items) return
 
   try {
-    // Get latest product details from API
     const response = await api.get<ProductDetails>(`/products/${itemId}`)
     const product = response.data
 
-    // Update our local state
     updateProductDetails(itemId, product)
 
-    // Check if new size is available
     const newSizeStock = product.quantities[newSize] || 0
     if (newSizeStock === 0) {
       return
     }
 
-    // Get current item
     const currentItem = cartStore.value.items.find((i: CartItem) => i.id === itemId && i.size === oldSize)
     if (!currentItem) return
 
-    // Remove item with old size
     cartStore.value.removeFromCart(itemId, oldSize)
 
-    // Add item with new size and quantity 1
     const newItem = {
       ...currentItem,
       size: newSize,
@@ -482,7 +449,6 @@ const updateSize = async (itemId: number, oldSize: string, newSize: string) => {
     }
     cartStore.value.addToCart(newItem)
   } catch (error) {
-    console.error('Erro ao atualizar tamanho:', error)
   }
 }
 
@@ -511,11 +477,9 @@ const validateQuantity = async (item: CartItem) => {
   if (!cartStore.value?.items) return
 
   try {
-    // Get latest product details from API
     const response = await api.get<ProductDetails>(`/products/${item.id}`)
     const product = response.data
 
-    // Update our local state
     updateProductDetails(item.id, product)
 
     const availableQuantity = product.quantities[item.size] || 0
@@ -529,7 +493,6 @@ const validateQuantity = async (item: CartItem) => {
     item.quantity = Math.floor(item.quantity)
     cartStore.value.updateQuantity(item.id, item.size, item.quantity)
   } catch (error) {
-    console.error('Erro ao validar quantidade:', error)
   }
 }
 
@@ -556,15 +519,13 @@ const shipping = computed(() => {
     return 0
   }
 
-  // Calculate distance-based multiplier
   const distance = calculateDistance(
     address.value.latitude,
     address.value.longitude,
-    -23.5505, // São Paulo latitude
-    -46.6333  // São Paulo longitude
+    -23.5505,
+    -46.6333
   )
 
-  // Increase shipping cost by 10% for each 100km
   const multiplier = 1 + (Math.floor(distance / 100) * 0.1)
   return baseShippingCost.value * multiplier
 })
@@ -584,7 +545,7 @@ const isAddressComplete = computed(() => {
 })
 
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-  const R = 6371 // Earth's radius in kilometers
+  const R = 6371
   const dLat = (lat2 - lat1) * Math.PI / 180
   const dLon = (lon2 - lon1) * Math.PI / 180
   const a =
@@ -592,7 +553,7 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
     Math.sin(dLon / 2) * Math.sin(dLon / 2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c // Distance in kilometers
+  return R * c
 }
 
 const searchCEP = async () => {
@@ -612,7 +573,6 @@ const searchCEP = async () => {
       address.value.city = data.localidade
       address.value.state = data.uf
 
-      // Get coordinates for the address
       const geocodeResponse = await fetch(
         `https://nominatim.openstreetmap.org/search?street=${encodeURIComponent(data.logradouro)}&city=${encodeURIComponent(data.localidade)}&state=${data.uf}&country=Brazil&format=json`
       )
@@ -624,7 +584,6 @@ const searchCEP = async () => {
       }
     }
   } catch (error) {
-    console.error('Erro ao buscar CEP:', error)
   } finally {
     loadingAddress.value = false
   }
@@ -669,7 +628,6 @@ const formatCardNumber = (event: Event) => {
 const validateCardNumber = () => {
   const number = payment.value.cardNumber.replace(/\s/g, '')
 
-  // Luhn Algorithm
   const isValid = number.split('')
     .reverse()
     .map(x => parseInt(x, 10))
@@ -764,7 +722,6 @@ const formatExpiryDate = (event: Event) => {
 const copyPixCode = () => {
   navigator.clipboard.writeText(pixCode.value)
     .then(() => {
-      // Success silently
     })
     .catch(() => {
       console.error('Erro ao copiar código PIX')
@@ -772,7 +729,6 @@ const copyPixCode = () => {
 }
 
 const generateBoleto = () => {
-  // Aqui você implementaria a geração do boleto
 }
 
 const continueShopping = () => {
@@ -798,40 +754,25 @@ const finishOrder = async () => {
   }
 
   try {
-    // Re-initialize auth store to ensure fresh data
     authStore.init()
 
     const cartItems = cartStore.value?.items || []
     const user = authStore.currentUser
-
-    // Debug logs for authentication state
-    console.log('Debug - Auth State:', {
-      isLoggedIn: authStore.isLoggedIn,
-      user: authStore.currentUser,
-      hasValidUser: !!authStore.currentUser?.id
-    })
-
+   
     if (!cartItems.length) {
       toastMessage.value = 'Carrinho vazio!'
       showToast.value = true
       return
     }
 
-    // Enhanced authentication check
     if (!authStore.isLoggedIn || !authStore.currentUser?.id) {
-      console.log('Debug - Auth Failed:', {
-        isLoggedIn: authStore.isLoggedIn,
-        hasUser: !!authStore.currentUser,
-        userId: authStore.currentUser?.id
-      })
       toastMessage.value = 'Usuário não autenticado!'
       showToast.value = true
-      authStore.logout() // Ensure clean logout
+      authStore.logout()
       router.push('/login')
       return
     }
 
-    // Update user's address in the database
     try {
       if (!user || !user.id) {
         throw new Error('User data not available')
@@ -852,10 +793,8 @@ const finishOrder = async () => {
       })
 
       if (!userUpdateResponse.ok) {
-        console.error('Failed to update user address:', await userUpdateResponse.json())
       }
     } catch (error) {
-      console.error('Error updating user address:', error)
     }
 
     localStorage.setItem('type_payment', payment.value.method)
@@ -881,14 +820,7 @@ const finishOrder = async () => {
       }
     }
 
-    // Debug log for request payload
-    console.log('Debug - Request Payload:', requestPayload)
-
     const response = await api.post('/products/buy', requestPayload)
-
-    // Debug log for API response
-    console.log('Debug - Raw API Response:', response)
-    console.log('Debug - API Response Data:', response.data)
 
     if (!response.data) {
       throw new Error('No data received from API')
@@ -897,19 +829,11 @@ const finishOrder = async () => {
     toastMessage.value = 'Pedido finalizado com sucesso!'
     showToast.value = true
 
-    // Clear cart and payment type
-    cartStore.value.clearCart() // Use the store method instead of directly manipulating localStorage
+    cartStore.value.clearCart()
     localStorage.removeItem('type_payment')
     
-    // Generate a fallback order ID if none is provided
     const orderId = response.data?.orderId || Date.now().toString()
     
-    // Debug log before redirect
-    console.log('Debug - Preparing redirect to:', {
-      route: 'ordersuccess',
-      orderId: orderId
-    })
-
     setTimeout(() => {
       router.push({
         name: 'ordersuccess',
@@ -918,16 +842,7 @@ const finishOrder = async () => {
     }, 2000)
 
   } catch (err: any) {
-    // Enhanced error logging
-    console.error('Debug - Order Error:', {
-      error: err,
-      message: err.message,
-      response: err.response?.data,
-      status: err.response?.status,
-      stack: err.stack
-    })
     
-    // More specific error message based on the error type
     if (err.response?.status === 401) {
       toastMessage.value = 'Sessão expirada. Por favor, faça login novamente.'
       setTimeout(() => router.push('/login'), 2000)

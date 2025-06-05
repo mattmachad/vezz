@@ -77,15 +77,12 @@ const router = createRouter({
     ]
 })
 
-// Navigation guard
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore()
 
-    // Force auth store initialization
     authStore.init()
 
     if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-        // Save the intended destination
         localStorage.setItem('redirectAfterLogin', to.fullPath)
         next('/login')
     } else {

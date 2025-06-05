@@ -103,7 +103,6 @@
     transition: box-shadow 0.3s;
   }
 
-  /* Responsividade */
   @media (max-width: 1440px) {
     .sobre {
       padding: 64px 120px;

@@ -18,11 +18,8 @@ const darkModeStore = useDarkModeStore()
 const authStore = useAuthStore()
 
 onMounted(() => {
-  // Initialize store after app is mounted
   cart.value = useCartStore()
-  // Initialize dark mode
   darkModeStore.init()
-  // Initialize auth store
   authStore.init()
 })
 </script>

@@ -315,8 +315,6 @@ const products = computed<DisplayProduct[]>(() => {
     const fallbackImage = 'https://res.cloudinary.com/dtuxy5k7v/image/upload/v1748493239/file_pdysef.png'
     const productImage = product.picture && product.picture.trim() !== '' ? product.picture : fallbackImage
 
-    console.log('productImage', product.picture)
-
     return {
       id: product.id,
       name: product.title,
@@ -636,8 +634,6 @@ const handleProductClick = (product: DisplayProduct) => {
     showLoginModal.value = true
     return
   }
-  // Aqui você pode adicionar a navegação para a página do produto
-  // router.push(`/product/${product.id}`)
 }
 </script>
 
@@ -1775,7 +1771,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Ajustes para o menu de filtros em telas pequenas */
 @media (max-width: 768px) {
   .contents {
     display: flex;
@@ -1788,7 +1783,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Ajustes para o cabeçalho em telas muito pequenas */
 @media (max-width: 480px) {
   .header-right {
     flex-direction: column;
@@ -1835,7 +1829,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Ajustes para os botões de ação em telas pequenas */
 @media (max-width: 640px) {
   .favoriteBtn,
   .addBtn {
@@ -1850,7 +1843,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Ajustes para o slider de preços em telas pequenas */
 @media (max-width: 480px) {
   .faixaDeValor {
     flex-direction: column;
@@ -1871,7 +1863,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Melhorias na visualização da lista em telas médias */
 @media (min-width: 641px) and (max-width: 1024px) {
   .cards.list :deep(.produto01) {
     padding: 12px;
@@ -1883,7 +1874,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Ajustes para telas muito pequenas */
 @media (max-width: 360px) {
   .cards {
     grid-template-columns: 1fr;
@@ -1916,7 +1906,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Ajustes responsivos para os elementos do módulo */
 .filtros {
   width: 280px;
   color: #555;
@@ -1992,7 +1981,6 @@ const handleProductClick = (product: DisplayProduct) => {
   }
 }
 
-/* Ajustes para o grid de produtos */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

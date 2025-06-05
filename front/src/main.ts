@@ -6,13 +6,10 @@ import './style.css'
 import Toast, { POSITION } from "vue-toastification/dist/index.mjs"
 import "vue-toastification/dist/index.css"
 
-// Create app instance
 const app = createApp(App)
 
-// Create Pinia instance
 const pinia = createPinia()
 
-// Toast configuration
 const toastOptions = {
     position: POSITION.BOTTOM_RIGHT,
     timeout: 3000,
@@ -28,10 +25,8 @@ const toastOptions = {
     rtl: false
 }
 
-// Install plugins
-app.use(pinia)  // Install Pinia first
+app.use(pinia)
 app.use(router)
 app.use(Toast, toastOptions)
 
-// Mount the app
 app.mount('#app')

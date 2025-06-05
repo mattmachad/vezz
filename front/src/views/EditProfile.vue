@@ -6,16 +6,13 @@
         <h1 :class="$style.pageTitle">Editar Perfil</h1>
         <div :class="$style.container">
           <div :class="$style.body">
-            <!-- Photo Section -->
             <div :class="$style.foto">
               <div :class="$style.profile">
                 <div :class="$style.body1">
                   <div :class="$style.photoWrapper">
-                    <!-- Loading state -->
                     <div v-if="isLoadingPhoto" :class="$style.photoPlaceholder">
                       <span>Carregando...</span>
                     </div>
-                    <!-- Photo if available -->
                     <img 
                       v-else-if="userPhoto" 
                       :src="userPhoto" 
@@ -23,7 +20,6 @@
                       alt="Foto do perfil"
                       @error="handleImageError"
                     />
-                    <!-- No photo placeholder -->
                     <div v-else :class="$style.photoPlaceholder">
                       <span>Sem foto</span>
                     </div>
@@ -47,7 +43,6 @@
               <div :class="$style.vDivider" />
             </div>
 
-            <!-- Personal Information Section -->
             <div :class="$style.blocks">
               <div :class="$style.informaesPessoais">
                 <div :class="$style.head">
@@ -99,7 +94,6 @@
                 </div>
               </div>
 
-              <!-- Location Section -->
               <div :class="$style.informaesPessoais">
                 <div :class="$style.head">
                   <div :class="$style.sectionTitle">Localização</div>
@@ -206,7 +200,6 @@
             </div>
           </div>
 
-          <!-- Buttons -->
           <div :class="$style.buttons">
             <button :class="$style.vBtn1" @click="handleCancel">
               <div :class="$style.content">
@@ -270,7 +263,6 @@ const editMode = reactive({
 
 async function loadUserPhoto(userId: number) {
   try {
-    console.log('Starting to load user photo for userId:', userId)
     const response = await fetch(`http://localhost:3003/users/${userId}`, {
       method: 'GET',
       headers: {
@@ -284,40 +276,28 @@ async function loadUserPhoto(userId: number) {
     }
 
     const userData = await response.json()
-    console.log('Received user data:', userData)
     
     if (userData.picture) {
-      console.log('Found photo in user data:', userData.picture)
-      // If the photo is a full URL, use it directly
       if (userData.picture.startsWith('http')) {
-        console.log('Using full URL for photo')
         userPhoto.value = userData.picture
       } else {
-        // Otherwise, construct the full URL
-        console.log('Constructing URL for photo')
         userPhoto.value = `http://localhost:3003/${userData.picture.replace(/^\//, '')}`
       }
-      console.log('Final photo URL:', userPhoto.value)
     } else {
-      console.log('No photo found in user data')
       userPhoto.value = ''
     }
   } catch (error) {
-    console.error('Error loading user photo:', error)
     userPhoto.value = ''
   } finally {
-    console.log('Photo loading completed. Current userPhoto value:', userPhoto.value)
     isLoadingPhoto.value = false
   }
 }
 
 onMounted(async () => {
   try {
-    console.log('Component mounted, initializing auth store')
     authStore.init()
     
     const userId = authStore.user?.id
-    console.log('Current user ID:', userId)
     
     if (!userId) {
       toast.error('Usuário não encontrado')
@@ -325,11 +305,8 @@ onMounted(async () => {
       return
     }
 
-    // Load user photo first
-    console.log('Starting photo load process')
     await loadUserPhoto(userId)
 
-    // Fetch user data from backend
     const response = await fetch(`http://localhost:3003/users/${userId}`, {
       method: 'GET',
       headers: {
@@ -344,23 +321,18 @@ onMounted(async () => {
     }
 
     const userData = await response.json()
-    console.log('Loaded full user data:', userData)
 
-    // Update form data with user data from backend
     formData.username = userData.name || ''
     formData.email = userData.email || ''
-    // Don't set password for security
     formData.street = userData.street || ''
     formData.neighborhood = userData.neighborhood || ''
     formData.city = userData.city || ''
     formData.state = userData.state || ''
     formData.cep = userData.cep || ''
 
-    // Update user store with fresh data
     userStore.updateUser(userData)
 
   } catch (error: any) {
-    console.error('Error in onMounted:', error)
     toast.error(error.message || 'Erro ao carregar dados do perfil')
   }
 })
@@ -378,16 +350,13 @@ async function onPhotoChange(event: Event) {
   const file = target.files?.[0]
   
   if (file) {
-    // Check file size (limit to 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('A imagem deve ter no máximo 5MB')
       return
     }
 
-    // Store the actual file for later use
     selectedFile.value = file
 
-    // Preview the image
     const reader = new FileReader()
     reader.onload = (e) => {
       userPhoto.value = e.target?.result as string
@@ -421,15 +390,12 @@ async function handleSave() {
       throw new Error('Usuário não encontrado')
     }
 
-    // Create FormData instance
     const formDataToSend = new FormData()
 
-    // Add the file first if it exists (using 'file' as the field name to match multer config)
     if (selectedFile.value) {
       formDataToSend.append('file', selectedFile.value)
     }
 
-    // Add user data as a JSON string in a separate field
     interface UserUpdateData {
       name?: string
       email?: string
@@ -442,7 +408,6 @@ async function handleSave() {
       picture?: string
     }
 
-    // Create userData object with only defined values
     const userData: UserUpdateData = {}
     
     if (formData.username) userData.name = formData.username
@@ -454,15 +419,8 @@ async function handleSave() {
     if (formData.state) userData.state = formData.state
     if (formData.cep) userData.cep = formData.cep
 
-    // Add user data as a JSON string
     formDataToSend.append('userData', JSON.stringify(userData))
 
-    console.log('Sending form data:', {
-      file: selectedFile.value?.name,
-      userData: userData
-    })
-
-    // Make API call to update user
     const response = await fetch(`http://localhost:3003/users/${userId}`, {
       method: 'PATCH',
       credentials: 'include',
@@ -476,11 +434,9 @@ async function handleSave() {
 
     const updatedUser = await response.json()
 
-    // Update both stores with new user data
     userStore.updateUser(updatedUser)
     authStore.login(updatedUser)
 
-    // Reset edit modes
     editMode.personal = false
     editMode.location = false
 
@@ -492,16 +448,9 @@ async function handleSave() {
   }
 }
 
-// Update the image error handler with more debug info
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
-  console.error('Image loading failed:', {
-    src: img.src,
-    naturalWidth: img.naturalWidth,
-    naturalHeight: img.naturalHeight,
-    complete: img.complete,
-    currentSrc: img.currentSrc
-  })
+
   userPhoto.value = ''
   toast.error('Erro ao carregar a imagem do perfil')
 }
@@ -592,7 +541,6 @@ function handleImageError(event: Event) {
   gap: 32px;
 }
 
-/* Photo Section */
 .foto {
   display: flex;
   flex-direction: column;
@@ -682,7 +630,6 @@ function handleImageError(event: Event) {
   background-color: rgba(154, 154, 154, 0.42);
 }
 
-/* Information Sections */
 .blocks {
   display: flex;
   flex-direction: column;
@@ -733,7 +680,6 @@ function handleImageError(event: Event) {
   color: var(--text-secondary);
 }
 
-/* Form Inputs */
 .inputs, .inputsAdress {
   display: flex;
   flex-direction: column;
@@ -791,7 +737,6 @@ function handleImageError(event: Event) {
   color: var(--text-disabled);
 }
 
-/* Buttons */
 .buttons {
   display: flex;
   gap: 16px;
@@ -834,7 +779,6 @@ function handleImageError(event: Event) {
   text-transform: uppercase;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .main {
     padding: 20px 16px;
@@ -863,7 +807,6 @@ function handleImageError(event: Event) {
   }
 }
 
-/* Add loading animation styles */
 @keyframes pulse {
   0% { opacity: 0.6; }
   50% { opacity: 1; }

@@ -211,7 +211,6 @@ const handleMobileLogout = () => {
   router.push('/')
 }
 
-// Click outside directive
 const vClickOutside: Directive = {
   beforeMount: (el: HTMLElement, binding: any) => {
     el.clickOutsideEvent = (event: Event) => {
@@ -228,7 +227,6 @@ const vClickOutside: Directive = {
   }
 }
 
-// Close menu when clicking outside
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
@@ -249,7 +247,6 @@ onUnmounted(() => {
   document.removeEventListener('click', closeProfileMenu)
 })
 
-// Extend HTMLElement to include our custom event
 declare global {
   interface HTMLElement {
     clickOutsideEvent?: (event: Event) => void;
@@ -508,7 +505,6 @@ declare global {
   fill: currentColor;
 }
 
-/* Make the selectors more specific and force the colors */
 .profile-container .auth-status .auth-icon.logged-in {
   color: #28a745 !important;
 }
@@ -517,7 +513,6 @@ declare global {
   color: #ff0000 !important;
 }
 
-/* Remove any other color inheritance */
 .profile-container .auth-status svg {
   color: unset;
 }
@@ -628,7 +623,6 @@ declare global {
   opacity: 0.7;
 }
 
-/* Mobile adjustments */
 @media (max-width: 900px) {
   .profile-dropdown {
     display: none;

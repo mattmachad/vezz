@@ -11,7 +11,6 @@ export interface Product {
     picture?: string
 }
 
-// Helper interface for display purposes
 export interface DisplayProduct {
     id: number
     name: string

@@ -88,7 +88,6 @@ onMounted(async () => {
     const response = await api.get<Product>(`/products/${route.params.id}`)
     product.value = response.data
     
-    // Get available sizes (sizes with quantity > 0)
     availableSizes.value = Object.entries(product.value.quantities)
       .filter(([_, qty]) => qty > 0)
       .map(([size]) => size)
@@ -136,7 +135,7 @@ const addToCart = () => {
 watch(selectedSize, (newSize: string) => {
   if (product.value && newSize) {
     maxQuantity.value = product.value.quantities[newSize] || 0
-    quantity.value = 1 // Reset quantity when size changes
+    quantity.value = 1
   }
 })
 </script>

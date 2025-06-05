@@ -5,7 +5,6 @@ import { AppDataSource } from '../database/data-source';
 async function bootstrap() {
   try {
     await AppDataSource.initialize();
-    console.log('✅ Conexão com o banco de dados estabelecida');
 
     const app = await NestFactory.create(AppModule);
 
@@ -17,9 +16,7 @@ async function bootstrap() {
     });
 
     await app.listen(process.env.PORT ?? 3000);
-    console.log(`🚀 Aplicação rodando na porta ${process.env.PORT ?? 3000}`);
   } catch (error) {
-    console.error('❌ Erro ao conectar no banco:', error);
     throw error;
   }
 }

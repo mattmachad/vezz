@@ -24,7 +24,6 @@
       </p>
     </div>
 
-    <!-- Footer global -->
     <footer :class="$style.footer">
       <div :class="$style.left">
         <a href="#">Contato</a> ·

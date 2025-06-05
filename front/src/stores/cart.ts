@@ -13,7 +13,6 @@ export interface CartItem {
 
 export const useCartStore = defineStore('cart', {
     state: () => {
-        // Try to load saved cart from localStorage
         const savedCart = localStorage.getItem('cart')
         return {
             items: savedCart ? JSON.parse(savedCart) : [] as CartItem[]
@@ -25,7 +24,6 @@ export const useCartStore = defineStore('cart', {
             const authStore = useAuthStore()
             const toast = useToast()
 
-            // Check if user is logged in
             if (!authStore.isLoggedIn) {
                 toast.error('Você precisa estar logado para adicionar produtos ao carrinho')
                 return false
@@ -38,7 +36,6 @@ export const useCartStore = defineStore('cart', {
             } else {
                 this.items.push(item)
             }
-            // Save to localStorage
             this.saveCart()
             return true
         },
@@ -47,7 +44,6 @@ export const useCartStore = defineStore('cart', {
             const index = this.items.findIndex((i: CartItem) => i.id === itemId && i.size === size)
             if (index > -1) {
                 this.items.splice(index, 1)
-                // Save to localStorage
                 this.saveCart()
             }
         },
@@ -56,18 +52,15 @@ export const useCartStore = defineStore('cart', {
             const item = this.items.find((i: CartItem) => i.id === itemId && i.size === size)
             if (item) {
                 item.quantity = quantity
-                // Save to localStorage
                 this.saveCart()
             }
         },
 
         clearCart() {
             this.items = []
-            // Save to localStorage
             this.saveCart()
         },
 
-        // Helper method to save cart to localStorage
         saveCart() {
             localStorage.setItem('cart', JSON.stringify(this.items))
         }

@@ -30,9 +30,9 @@ export class BuyService {
   }
 
   async update(id: number, updateBuyDto: UpdateBuyDto): Promise<Buy> {
-    const buy = await this.findOne(id); // Busca o registro existente
-    const updated = Object.assign(buy, updateBuyDto); // Atualiza os campos com os novos dados
-    return await this.buyRepository.save(updated); // Salva a atualização
+    const buy = await this.findOne(id);
+    const updated = Object.assign(buy, updateBuyDto);
+    return await this.buyRepository.save(updated);
   }
 
 

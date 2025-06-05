@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BuyService } from './buy.service';
 import { BuyController } from './buy.controller';
-import { Buy } from './entities/buy.entity'; // 🔥 Caminho correto para a entidade
+import { Buy } from './entities/buy.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Buy])], // 🔥 Importar a entidade Buy
+  imports: [TypeOrmModule.forFeature([Buy])],
   controllers: [BuyController],
   providers: [BuyService],
-  exports: [BuyService], // 🔥 Se precisar usar em outros módulos
+  exports: [BuyService],
 })
 export class BuyModule { }

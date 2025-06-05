@@ -20,12 +20,10 @@ export const useAuthStore = defineStore('auth', {
 
     actions: {
         init() {
-            // Check localStorage for existing user
             const storedUser = localStorage.getItem('user')
             if (storedUser && storedUser !== 'undefined') {
                 try {
                     const userData = JSON.parse(storedUser)
-                    // Enhanced validation of user data
                     if (userData &&
                         userData.id &&
                         typeof userData.id === 'number' &&
@@ -33,7 +31,6 @@ export const useAuthStore = defineStore('auth', {
                         typeof userData.email === 'string' &&
                         userData.name &&
                         typeof userData.name === 'string') {
-                        // Optional fields don't need validation since they're optional
                         this.user = userData
                         this.isAuthenticated = true
                     } else {
@@ -56,7 +53,6 @@ export const useAuthStore = defineStore('auth', {
         },
 
         login(user: User) {
-            // Validate required user object structure
             if (!user ||
                 !user.id ||
                 typeof user.id !== 'number' ||
@@ -68,14 +64,12 @@ export const useAuthStore = defineStore('auth', {
                 return
             }
 
-            // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
             if (!emailRegex.test(user.email)) {
                 console.error('Invalid email format')
                 return
             }
 
-            // Optional fields are accepted as is
             this.user = user
             this.isAuthenticated = true
             localStorage.setItem('user', JSON.stringify(user))

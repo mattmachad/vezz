@@ -42,13 +42,11 @@ export class ProductsService implements OnModuleInit {
 
     const saved: Product = await this.productRepository.save(product);
 
-    console.log('[DEBUG] Produto salvo com imagem:', saved);
     return saved;
   }
 
   async findAll(): Promise<Product[]> {
     const products: Product[] = await this.productRepository.find();
-    console.log('[DEBUG] Produtos encontrados:', products);
     return products;
   }
 
@@ -57,7 +55,6 @@ export class ProductsService implements OnModuleInit {
     if (!product) {
       throw new NotFoundException(`Produto com ID ${id} não encontrado`);
     }
-    console.log('[DEBUG] Produto encontrado:', product);
     return product;
   }
 

@@ -2,14 +2,12 @@
 /// <reference types="vue" />
 /// <reference types="vue-router" />
 
-// Suporte a componentes .vue
 declare module '*.vue' {
     import { DefineComponent } from 'vue'
     const component: DefineComponent<{}, {}, any>
     export default component
 }
 
-// Suporte a imagens
 declare module '*.png' {
     const value: string
     export default value
@@ -30,7 +28,6 @@ declare module '*.jpeg' {
     export default value
 }
 
-// Suporte ao toastification
 declare module 'vue-toastification' {
     import { Plugin } from 'vue'
     export const useToast: () => {

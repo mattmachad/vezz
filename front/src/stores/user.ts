@@ -21,7 +21,6 @@ export const useUserStore = defineStore('user', {
 
     actions: {
         init() {
-            // Check localStorage for existing user profile
             const storedProfile = localStorage.getItem('userProfile')
             if (storedProfile) {
                 try {
@@ -50,8 +49,6 @@ export const useUserStore = defineStore('user', {
             this.error = null
 
             try {
-                // Here you would make an API call to fetch user profile
-                // For now, we'll just simulate it
                 const response = await fetch(`/api/users/${userId}`)
                 const data = await response.json()
 
@@ -73,8 +70,6 @@ export const useUserStore = defineStore('user', {
             this.error = null
 
             try {
-                // Here you would make an API call to save user profile
-                // For now, we'll just simulate it
                 const response = await fetch(`/api/users/${profile.id}`, {
                     method: 'PUT',
                     headers: {

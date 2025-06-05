@@ -47,19 +47,16 @@ export class UsersService implements OnModuleInit {
     });
 
     const savedUser: User = await this.userRepository.save(user);
-    console.log('[DEBUG] Usuário salvo:', { ...savedUser, password: undefined });
     return savedUser;
   }
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
     const users: User[] = await this.userRepository.find();
-    console.log('[DEBUG] Usuários encontrados:', users.map(u => ({ ...u, password: undefined })));
     return users.map(({ password, ...rest }) => rest);
   }
 
   async findOne(id: number): Promise<User> {
     const user: User | null = await this.userRepository.findOne({ where: { id } });
-    console.log('[DEBUG] Usuário encontrado:', user ? { ...user, password: undefined } : null);
 
     if (!user) {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
