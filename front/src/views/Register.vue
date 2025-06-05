@@ -41,41 +41,24 @@ const form = ref({
 const error = ref('')
 const loading = ref(false)
 
-async function handleSubmit() {
-  error.value = ''
-  loading.value = true
+const handleSubmit = async () => {
+  if (!form.value.nome || !form.value.email || !form.value.senha) {
+    error.value = 'Por favor, preencha todos os campos obrigatórios.'
+    return
+  }
+
+  const payload = {
+    name: form.value.nome,
+    email: form.value.email,
+    password: form.value.senha
+  }
+
   try {
-    // Validar campos obrigatórios
-    if (!form.value.nome.trim()) {
-      throw new Error('Nome é obrigatório')
-    }
-    if (!form.value.email.trim()) {
-      throw new Error('Email é obrigatório')
-    }
-    if (!form.value.senha.trim() || form.value.senha.length < 6) {
-      throw new Error('Senha é obrigatória e deve ter pelo menos 6 caracteres')
-    }
-
-    // Monta o payload com campos obrigatórios
-    const payload = {
-      name: form.value.nome.trim(),
-      email: form.value.email.trim().toLowerCase(),
-      password: form.value.senha,
-      is_admin: false
-    }
-
-    console.log('Enviando dados para registro:', {
-      ...payload,
-      password: '[REDACTED]'
-    })
-
     const response = await fetch('http://localhost:3003/users', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+      headers: {
+        'Content-Type': 'application/json'
       },
-      credentials: 'include',
       body: JSON.stringify(payload)
     })
 

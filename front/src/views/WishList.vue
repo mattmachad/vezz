@@ -1415,7 +1415,63 @@ onMounted(() => {
   }
 }
 
+.list-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
 
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 
+@media (max-width: 768px) {
+  .wishlist-container {
+    padding: 1rem;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .wishlist-container {
+    background-color: #ffffff;
+    color: #333333;
+  }
+  
+  .product-card {
+    background-color: #f8f8f8;
+    border: 1px solid #e0e0e0;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .wishlist-container {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .product-card {
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
+  }
+  
+  .icon {
+    color: #ffffff;
+  }
+}
+
+.product-card {
+  display: flex;
+  align-items: stretch;
+}
 </style>
