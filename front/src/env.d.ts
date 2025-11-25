@@ -4,7 +4,7 @@
 
 // Suporte a componentes .vue
 declare module '*.vue' {
-    import { DefineComponent } from 'vue'
+    import type { DefineComponent } from 'vue'
     const component: DefineComponent<{}, {}, any>
     export default component
 }
@@ -33,12 +33,6 @@ declare module '*.jpeg' {
 // Suporte ao toastification
 declare module 'vue-toastification' {
     import { Plugin } from 'vue'
-    export const useToast: () => {
-        success: (message: string) => void
-        error: (message: string) => void
-        warning: (message: string) => void
-        info: (message: string) => void
-    }
     const plugin: Plugin
     export default plugin
 }

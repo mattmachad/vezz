@@ -243,6 +243,7 @@ import { useCartStore } from '@/stores/cart'
 import { useFavoritesStore } from '@/stores/favorites'
 import type { CartItem } from '@/stores/cart'
 import LoginModal from '../components/LoginModal.vue'
+import { useRouter } from 'vue-router'
 
 import addIcon from '../assets/cards/add.svg'
 import favoriteIcon from '../assets/cards/favorite.svg'
@@ -252,6 +253,7 @@ import radioButtonChecked from '../assets/radio_button_checked.svg'
 import radioButtonUnchecked from '../assets/radio_button_unchecked.svg'
 
 const style = useCssModule()
+const router = useRouter()
 
 const sectionsOpen = ref({
   categories: true,
@@ -632,12 +634,7 @@ const isUserLoggedIn = computed(() => {
 })
 
 const handleProductClick = (product: DisplayProduct) => {
-  if (!isUserLoggedIn.value) {
-    showLoginModal.value = true
-    return
-  }
-  // Aqui você pode adicionar a navegação para a página do produto
-  // router.push(`/product/${product.id}`)
+  router.push(`/product/${product.id}`)
 }
 </script>
 

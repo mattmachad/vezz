@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import NavBar from '@/components/NavBar.vue'
@@ -81,14 +81,15 @@ const selectedSize = ref('')
 const quantity = ref(1)
 const maxQuantity = ref(1)
 
-const availableSizes = ref<string[]>([])
+const availableSizes = computed(() => {
+  return product.value?.quantities.filter(qty => qty > 0) || []
+})
 
 onMounted(async () => {
   try {
     const response = await api.get<Product>(`/products/${route.params.id}`)
     product.value = response.data
     
-    // Get available sizes (sizes with quantity > 0)
     availableSizes.value = Object.entries(product.value.quantities)
       .filter(([_, qty]) => qty > 0)
       .map(([size]) => size)
@@ -136,7 +137,7 @@ const addToCart = () => {
 watch(selectedSize, (newSize: string) => {
   if (product.value && newSize) {
     maxQuantity.value = product.value.quantities[newSize] || 0
-    quantity.value = 1 // Reset quantity when size changes
+    quantity.value = 1
   }
 })
 </script>

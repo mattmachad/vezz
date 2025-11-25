@@ -3,8 +3,8 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import './style.css'
-import Toast, { POSITION } from "vue-toastification/dist/index.mjs"
-import "vue-toastification/dist/index.css"
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
 
 // Create app instance
 const app = createApp(App)
@@ -14,7 +14,7 @@ const pinia = createPinia()
 
 // Toast configuration
 const toastOptions = {
-    position: POSITION.BOTTOM_RIGHT,
+    position: 'top-right',
     timeout: 3000,
     closeOnClick: true,
     pauseOnFocusLoss: true,
@@ -22,8 +22,8 @@ const toastOptions = {
     draggable: true,
     draggablePercent: 0.6,
     showCloseButtonOnHover: false,
-    hideProgressBar: false,
-    closeButton: "button",
+    hideProgressBar: true,
+    closeButton: 'button',
     icon: true,
     rtl: false
 }

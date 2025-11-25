@@ -88,46 +88,42 @@
       const response = await fetch('http://localhost:3003/users/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/json'
         },
-        credentials: 'include',
         body: JSON.stringify({
           email: email.value,
           password: senha.value
         })
       })
   
-      const data: LoginResponse = await response.json()
-      
-      // Check if response is not ok or if data is invalid
-      if (!response.ok || !data.user || !data.user.id) {
-        throw new Error(data.message || 'Credenciais inválidas')
+      const data = await response.json()
+  
+      if (!response.ok || !data.token) {
+        throw new Error(data.message || 'Erro ao fazer login')
       }
   
-      // Validate user data
-      if (!data.user.email || !data.user.name) {
+      if (!data.name || !data.email) {
         throw new Error('Dados do usuário inválidos')
       }
   
-      // Store user data in auth store
-      authStore.login(data.user)
-      
-      toast.success('Login realizado com sucesso!')
-      
-      // Check for redirect after login
-      const redirectPath = localStorage.getItem('redirectAfterLogin')
-      if (redirectPath) {
-        localStorage.removeItem('redirectAfterLogin')
-        router.push(redirectPath)
+      authStore.login({
+        token: data.token,
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          is_admin: data.is_admin
+        }
+      })
+  
+      if (route.query.redirect) {
+        router.push(route.query.redirect as string)
       } else {
         router.push('/')
       }
-    } catch (err: any) {
-      error.value = err.message || 'Email ou senha incorretos'
-      toast.error(error.value)
-      // Clear auth store in case of error
+    } catch (err) {
       authStore.logout()
+      error.value = err.message
     }
   }
   
